@@ -95,4 +95,4 @@ df_final = df_relation.apply(
     axis=1
 ).apply(pd.Series).stack().reset_index(drop=True)
 
-df_final.to_csv("test.csv", header=False, index=False, doublequote=False, escapechar="'")
+df_final.to_csv("test.csv", header=False, index=False)
