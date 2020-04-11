@@ -19,7 +19,7 @@ Example structure of **Web Data Commons 2015**:
 	["Club","Barcelona","Real Madrid","Bayern München","Paris Saint Germain","Atlético Madrid","Juventus","Manchester City","Arsenal","FC Porto","Manchester United"], 
 	["Country","ESP","ESP","GER","FRE","ESP","ITA","ENG","ENG","POR","ENG"],
 	["Points","2037","2008","1973","1914","1880","1863","1862","1853","1850","1804"]
-   ]
+   ],
   "pageTitle": "FootballDatabase - Club Rankings and Statistics",
   "title": "",
   "url": "http://footballdatabase.com/index.php?page\u003dplayer\u0026Id\u003d660",
