@@ -88,7 +88,7 @@ df_relation = df[(df['hasHeader'] == True) & (df['tableType'] == 'RELATION')].re
 df_relation.drop(['hasHeader', 'tableType'], inplace=True, axis=1)
 
 # Display of the tables for different orientations
-# print(table_display_for_relation_column(df_headers, 2))
+print(table_display_for_relation_column(df_relation, 2))
 
 df_final = df_relation.apply(
     lambda row: conversion_of_relation_column_based_on_table_orientation(row['relation'], row['tableOrientation']),
