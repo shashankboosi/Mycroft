@@ -60,7 +60,7 @@ In this stage we convert the above structure into Mycroft format shown below
 
 ### Stage 2
 
-**Features to talk about **
+**Features to talk about**
 
 1. Use `pageTitle` to increase more relevancy in the dataset
 2. Add the feature of Similarity matching whilst Data Collection
@@ -68,7 +68,7 @@ In this stage we convert the above structure into Mycroft format shown below
 
 ### Stage 3 
 
-**Features to talk about **
+**Features to talk about**
 
 1. Use TF-IDF
 2. Change in the dimensions used in the feature extractors
