@@ -70,51 +70,53 @@ def conversion_of_relation_column_based_on_table_orientation(relation, orientati
     return result_list
 
 
-# --------------------------- Start -------------------------------------------
+# --------------------------- Main file for the base data preparation -------------------------------------------
 
-file_path = "../data/sample"
+if __name__ == "__main__":
+    file_path = "../resources/data/sample"
 
-df = pd.DataFrame(get_data_from_file(file_path))
+    df = pd.DataFrame(get_data_from_file(file_path))
 
-columns_to_store = [
-    "relation",
-    "pageTitle",
-    "headerPosition",
-    "hasHeader",
-    "tableType",
-    "tableOrientation",
-]
+    columns_to_store = [
+        "relation",
+        "pageTitle",
+        "headerPosition",
+        "hasHeader",
+        "tableType",
+        "tableOrientation",
+    ]
 
-columns_to_drop = [x for x in list(df.columns) if x not in columns_to_store]
-df.drop(columns_to_drop, axis=1, inplace=True)
+    columns_to_drop = [x for x in list(df.columns) if x not in columns_to_store]
+    df.drop(columns_to_drop, axis=1, inplace=True)
 
-"""
-1) Delete rows which doesn't have a header
-2) Extract only the RELATION table types from the dataset with headers
+    """
+    1) Delete rows which doesn't have a header
+    2) Extract only the RELATION table types from the dataset with headers
 
-There are five different table types in total but we are onlt concerned about the relational tables
-print(df['tableType'].unique()) - ['LAYOUT' 'ENTITY' 'RELATION' 'MATRIX' 'OTHER']
-"""
-df_relation = df[
-    (df["hasHeader"] == True) & (df["tableType"] == "RELATION")
-].reset_index(drop=True)
+    There are five different table types in total but we are onlt concerned about the relational tables
+    print(df['tableType'].unique()) - ['LAYOUT' 'ENTITY' 'RELATION' 'MATRIX' 'OTHER']
+    """
+    df_relation = df[
+        (df["hasHeader"] == True) & (df["tableType"] == "RELATION")
+    ].reset_index(drop=True)
 
-# Drop hasHeader and tableType as they have been used
-df_relation.drop(["hasHeader", "tableType"], inplace=True, axis=1)
+    # Drop hasHeader and tableType as they have been used
+    df_relation.drop(["hasHeader", "tableType"], inplace=True, axis=1)
 
-# Display of the tables for different orientations
-print(table_display_for_relation_column(df_relation, 2))
+    # Display of the tables for different orientations
+    print(table_display_for_relation_column(df_relation, 2))
 
-df_final = (
-    df_relation.apply(
-        lambda row: conversion_of_relation_column_based_on_table_orientation(
-            row["relation"], row["tableOrientation"]
-        ),
-        axis=1,
+    df_final = (
+        df_relation.apply(
+            lambda row: conversion_of_relation_column_based_on_table_orientation(
+                row["relation"], row["tableOrientation"]
+            ),
+            axis=1,
+        )
+        .apply(pd.Series)
+        .stack()
+        .reset_index(drop=True)
     )
-    .apply(pd.Series)
-    .stack()
-    .reset_index(drop=True)
-)
 
-df_final.to_csv("test.csv", header=False, index=False)
+    df_final.to_csv("../resources/output/test.csv", header=False, index=False)
+
