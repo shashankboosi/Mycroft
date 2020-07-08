@@ -1,8 +1,9 @@
 import json
+
 import pandas as pd
 
-# The final dataset is going to be English-Language Relational Web Tables 2015
 
+# The final dataset is going to be English-Language Relational Web Tables 2015
 
 def get_data_from_file(path):
     """This function extracts all the json objects into a list of dictionaries
@@ -98,7 +99,7 @@ if __name__ == "__main__":
     """
     df_relation = df[
         (df["hasHeader"] == True) & (df["tableType"] == "RELATION")
-    ].reset_index(drop=True)
+        ].reset_index(drop=True)
 
     # Drop hasHeader and tableType as they have been used
     df_relation.drop(["hasHeader", "tableType"], inplace=True, axis=1)
@@ -110,13 +111,8 @@ if __name__ == "__main__":
         df_relation.apply(
             lambda row: conversion_of_relation_column_based_on_table_orientation(
                 row["relation"], row["tableOrientation"]
-            ),
-            axis=1,
-        )
-        .apply(pd.Series)
-        .stack()
-        .reset_index(drop=True)
+            ), axis=1,
+        ).apply(pd.Series).stack().reset_index(drop=True)
     )
 
     df_final.to_csv("../resources/output/test.csv", header=False, index=False)
-
