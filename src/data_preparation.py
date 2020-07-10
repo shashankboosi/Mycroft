@@ -1,3 +1,4 @@
+import csv
 import json
 
 import pandas as pd
@@ -6,10 +7,18 @@ import pandas as pd
 # The final dataset is going to be English-Language Relational Web Tables 2015
 
 
+def get_semantic_types():
+    with open('../resources/data/semantic_types.csv', newline='') as f:
+        type_list = list(csv.reader(f))[0]
+
+    return list(map(lambda x: x.lower().replace(" ", ""), type_list))
+
+
 class WebTableFormatToMycroftFormat:
     def __init__(self, file_path):
         self.file_path = file_path
         self.input_data = self.get_data_from_file()
+        self.semantic_types = get_semantic_types()
 
     def transform(self):
         df = pd.DataFrame(self.input_data)
@@ -71,8 +80,7 @@ class WebTableFormatToMycroftFormat:
 
         return data_list
 
-    @staticmethod
-    def conversion_of_relation_column_based_on_table_orientation(relation, orientation):
+    def conversion_of_relation_column_based_on_table_orientation(self, relation, orientation):
         """This function converts the relation attribute from the web data columns into
         the format that Mycroft requires as the base dataset.
 
@@ -91,9 +99,9 @@ class WebTableFormatToMycroftFormat:
         result_list = []
         for i in range(len(transposed_list)):
             transformed_string = "".join(
-                i for i in transposed_list[i][0] if not i in bad_chars
-            )
-            if transformed_string != "":
+                i for i in transposed_list[i][0] if i not in bad_chars
+            ).lower().replace(" ", "")
+            if transformed_string != "" and transformed_string in self.semantic_types:
                 result_list.append([str(transformed_string), transposed_list[i][1:]])
             else:
                 continue
