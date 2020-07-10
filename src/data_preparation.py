@@ -15,8 +15,9 @@ def get_semantic_types():
 
 
 class WebTableFormatToMycroftFormat:
-    def __init__(self, file_path):
-        self.file_path = file_path
+    def __init__(self, input_file_path, output_file_path):
+        self.input_file_path = input_file_path
+        self.output_file_path = output_file_path
         self.input_data = self.get_data_from_file()
         self.semantic_types = get_semantic_types()
 
@@ -60,7 +61,7 @@ class WebTableFormatToMycroftFormat:
             ).apply(pd.Series).stack().reset_index(drop=True)
         )
 
-        df_final.to_csv("../resources/output/test1.csv", header=False, index=False)
+        df_final.to_csv(self.output_file_path, header=False, index=False)
 
     def get_data_from_file(self):
         """This function extracts all the json objects into a list of dictionaries
@@ -73,7 +74,7 @@ class WebTableFormatToMycroftFormat:
             List[Dict] -- data_list
         """
         data_list = []
-        with open(self.file_path, encoding="utf-8") as file:
+        with open(self.input_file_path, encoding="utf-8") as file:
             for jsonObjects in file:
                 data_dict = json.loads(jsonObjects)
                 data_list.append(data_dict)
@@ -127,5 +128,6 @@ class WebTableFormatToMycroftFormat:
         print()
 
 
-input_converter = WebTableFormatToMycroftFormat("../resources/data/sample")
+input_converter = WebTableFormatToMycroftFormat("../resources/data/sample",
+                                                "../resources/output/test_sample_with_filter.csv")
 input_converter.transform()

@@ -1,7 +1,7 @@
 import pandas as pd
 import ast
 
-x = pd.read_csv("../resources/output/test.csv", names=["csv_data"])
+x = pd.read_csv("../resources/output/test_sample_with_filter.csv", names=["csv_data"])
 
 y = (
     x["csv_data"]
