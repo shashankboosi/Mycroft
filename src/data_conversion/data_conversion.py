@@ -8,7 +8,7 @@ import pandas as pd
 
 
 def get_semantic_types():
-    with open('../resources/data/semantic_types.csv', newline='') as f:
+    with open('../../resources/data/semantic_types.csv', newline='') as f:
         type_list = list(csv.reader(f))[0]
 
     return list(map(lambda x: x.lower().replace(" ", ""), type_list))
@@ -128,6 +128,6 @@ class WebTableFormatToMycroftFormat:
         print()
 
 
-input_converter = WebTableFormatToMycroftFormat("../resources/data/sample",
+input_converter = WebTableFormatToMycroftFormat("../../resources/data/sample",
                                                 "../resources/output/test_sample_with_filter.csv")
 input_converter.transform()
