@@ -129,5 +129,5 @@ class WebTableFormatToMycroftFormat:
 
 
 input_converter = WebTableFormatToMycroftFormat("../../resources/data/sample",
-                                                "../resources/output/test_sample_with_filter.csv")
+                                                "../../resources/output/test_sample_with_filter.csv")
 input_converter.transform()
