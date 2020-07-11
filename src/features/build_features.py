@@ -1,16 +1,18 @@
-import random
-import os
-import pandas as pd
+# Code is used from https://github.com/madelonhulsebos/sherlock
 
+import os
+import random
+
+import pandas as pd
 from google_drive_downloader import GoogleDriveDownloader as gd
+
 from src.features.bag_of_characters import extract_bag_of_characters_features
 from src.features.bag_of_words import extract_bag_of_words_features
-from src.features.word_embeddings import extract_word_embeddings_features
 from src.features.paragraph_vectors import infer_paragraph_embeddings_features
+from src.features.word_embeddings import extract_word_embeddings_features
 
 
 def prepare_feature_extraction():
-
     word_embedding_file = "../src/features/glove.6B.50d.txt"
     paragraph_vector_file = (
         "../src/features/par_vec_trained_400.pkl.docvecs.vectors_docs.npy"
@@ -50,7 +52,6 @@ def prepare_feature_extraction():
 # Input: a pandas DataFrame with each row a numpy array representing a full data column
 # Output: feature_vectors stored as numpy ndarray
 def build_features(data):
-
     prepare_feature_extraction()
 
     df_char = pd.DataFrame()

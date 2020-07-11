@@ -1,15 +1,18 @@
+# Code is used from https://github.com/madelonhulsebos/sherlock
+
 import string
+from collections import OrderedDict
+
 import numpy  as np
 from scipy.stats import skew, kurtosis
-from collections import OrderedDict
 
 
 # Input: a single column in the form of pandas series
 # Output: ordered dictionary holding bag of character features
 def extract_bag_of_characters_features(data, n_val):
-    
-    characters_to_check = [ '['+ c + ']' for c in string.printable if c not in ( '\n', '\\', '\v', '\r', '\t', '^' )] + ['[\\\\]', '[\^]']
-    
+    characters_to_check = ['[' + c + ']' for c in string.printable if c not in ('\n', '\\', '\v', '\r', '\t', '^')] + [
+        '[\\\\]', '[\^]']
+
     f = OrderedDict()
 
     data_no_null = data.dropna()
@@ -17,7 +20,7 @@ def extract_bag_of_characters_features(data, n_val):
 
     for c in characters_to_check:
         all_value_features['n_{}'.format(c)] = data_no_null.str.count(c)
-        
+
     for value_feature_name, value_features in all_value_features.items():
         f['{}-agg-any'.format(value_feature_name)] = any(value_features)
         f['{}-agg-all'.format(value_feature_name)] = all(value_features)
@@ -31,8 +34,3 @@ def extract_bag_of_characters_features(data, n_val):
         f['{}-agg-skewness'.format(value_feature_name)] = skew(value_features)
 
     return f
-
-
-    
-    
-

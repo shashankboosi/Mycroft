@@ -1,13 +1,14 @@
-import numpy as np
+# Code is used from https://github.com/madelonhulsebos/sherlock
 
-from scipy import stats
 from collections import OrderedDict
+
+import numpy as np
+from scipy import stats
 
 
 # Input: a single column in the form of a pandas series
 # Output: ordered dictionary holding word embedding features
 def extract_word_embeddings_features(values):
-
     num_embeddings = 50
     f = OrderedDict()
     embeddings = []
@@ -16,11 +17,10 @@ def extract_word_embeddings_features(values):
     word_to_embedding = {}
 
     for w in word_vectors_f:
-
         term, vector = w.strip().split(' ', 1)
         vector = np.array(vector.split(' '), dtype=float)
         word_to_embedding[term] = vector
-    
+
     values = values.dropna()
 
     for v in values:
