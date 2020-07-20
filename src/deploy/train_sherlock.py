@@ -4,7 +4,9 @@ from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.models import model_from_json
 from tensorflow.keras.utils import to_categorical
+from torch.utils.data import DataLoader
 
+from src.models.dataset import WDCDataset, ToTensor
 from src.models.model_construction import NNModelConstruction
 from src.models.sherlock_model import Sherlock
 
@@ -78,11 +80,12 @@ def train_predict_sherlock(x_train, y_train, x_val, y_val, nn_id):
     lr = 0.0001
     epochs = 100
     results = []
-    #
-    # images, labels = NNModel(Linear(), 0.003).view_batch()
-    # print(labels)
-    # plt.imshow(images, cmap="Greys")
-    # plt.show()
+
+    train_data = WDCDataset(x_train, y_train_cat, transform=ToTensor())
+    train_loader = DataLoader(dataset=train_data, batch_size=32, shuffle=True, num_workers=2)
+
+    validation_data = WDCDataset(x_val, y_val_cat, transform=ToTensor())
+    validation_loader = DataLoader(dataset=train_data, batch_size=32, shuffle=False, num_workers=2)
 
     m = NNModelConstruction(x_train, x_val, y_train_cat, y_val_cat, Sherlock(), lr)
 
