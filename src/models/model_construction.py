@@ -1,43 +1,71 @@
-import torch
+import time
 
+import numpy as np
+import torch
 from torch import nn, optim, from_numpy
+from tqdm import tqdm
 
 
 class NNModelConstruction:
-    def __init__(self, x_train, x_test, y_train, y_test, network, learning_rate):
+    def __init__(self, train_loader, validation_loader, network, learning_rate=0.001, epochs=50):
         """
         Load Data, initialize a given network structure and set learning rate
         """
 
-        self.x_train = x_train
-        self.y_train = y_train
-        self.x_test = x_test
-        self.y_test = y_test
+        self.train_loader = train_loader
+        self.validation_loader = validation_loader
+        self.learning_rate = learning_rate
+        self.epochs = epochs
 
         self.model = network
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer = optim.Adam(self.model.parameters(), lr=learning_rate)
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-        self.num_train_samples = len(self.x_train[0][0])
-        self.num_test_samples = len(self.x_test[0][0])
+    def train(self):
 
-    def train_epoch(self):
-        self.model.train()
-        outputs = self.model(from_numpy(self.x_train[0]).float(),
-                             from_numpy(self.x_train[1]).float(),
-                             from_numpy(self.x_train[2]).float(),
-                             from_numpy(self.x_train[3]).float()
-                             )
+        total_step = len(self.train_loader)
+        for epoch in tqdm(range(self.epochs)):
+            print('Starting epoch {}/{}.'.format(epoch + 1, self.epochs))
+
+            train_history_per_epoch = {'loss': [], 'acc': [], 'f1_score': []}
+            self.model.train()
+
+            for i, batch in enumerate(self.train_loader):
+                start = time.time()
+                x, y, z, w, label = batch
+                # images = input.type(torch.FloatTensor).to(self.device).permute(0, 3, 1, 2)
+                # labels = label.type(torch.LongTensor).unsqueeze(1).to(self.device)
+                del batch
+
+                outputs = self.model(x, y, z, w)
+                loss = self.criterion(outputs, torch.max(label, 1)[1])
+                # overall_acc, avg_per_class_acc, avg_jacc, avg_dice = eval_metrics(labels.squeeze(1),
+                #                                                                   outputs.argmax(dim=1),
+                #                                                                   self.num_of_classes)
+                # train_history_per_epoch['acc'].append(overall_acc)
+                # train_history_per_epoch['f1_score'].append(avg_per_class_acc)
+                train_history_per_epoch['loss'].append(loss.item())
+
+                # Backward and optimize
+                self.optimizer.zero_grad()
+                loss.backward()
+                self.optimizer.step()
+
+                end = time.time()
+                print('Time taken for the batch is {}'.format(end - start))
+
+                if (i + 1) % 2 == 0:
+                    print('Loss at Epoch [{}/{}] and Step [{}/{}] is: {:.4f}'
+                          .format(epoch + 1, self.epochs, i + 1, total_step, np.mean(train_history_per_epoch['loss'])))
+
 
         # print(summary(self.model.to(self.device), [(1001, 960), (1001, 201), (1001, 400), (1001, 27)]))
-        loss = self.criterion(outputs, torch.max(from_numpy(self.y_train), 1)[1])
-        print(loss)
-        self.optimizer.zero_grad()
-        loss.backward()
-        self.optimizer.step()
-
+        # loss = self.criterion(outputs, torch.max(from_numpy(self.y_train), 1)[1])
         return
+
+    def train_epoch(self):
+        pass
 
     def eval(self):
         self.model.eval()
