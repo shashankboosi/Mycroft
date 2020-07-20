@@ -82,17 +82,20 @@ def train_predict_sherlock(x_train, y_train, x_val, y_val, nn_id):
     results = []
 
     train_data = WDCDataset(x_train, y_train_cat, transform=ToTensor())
-    train_loader = DataLoader(dataset=train_data, batch_size=32, shuffle=True, num_workers=2)
+    train_loader = DataLoader(dataset=train_data, batch_size=32, shuffle=True)
+    print("The length of the train dataset is {}".format(len(train_data)))
 
     validation_data = WDCDataset(x_val, y_val_cat, transform=ToTensor())
-    validation_loader = DataLoader(dataset=train_data, batch_size=32, shuffle=False, num_workers=2)
+    validation_loader = DataLoader(dataset=validation_data, batch_size=32, shuffle=False)
+    print("The length of the validation dataset is {}".format(len(train_data)))
 
-    m = NNModelConstruction(x_train, x_val, y_train_cat, y_val_cat, Sherlock(), lr)
+    m = NNModelConstruction(train_loader, validation_loader, Sherlock(), lr, epochs)
+    m.train()
 
-    accuracies = [0]
-    for e in range(epochs):
-        m.train_epoch()
-        accuracy = m.eval()
-        print(f"Epoch: {e}/{epochs}.. Test Accuracy: {accuracy}")
-        accuracies.append(accuracy)
-    results.append(accuracies)
+    # accuracies = [0]
+    # for e in range(epochs):
+    #     m.train_epoch()
+    #     accuracy = m.eval()
+    #     print(f"Epoch: {e}/{epochs}.. Test Accuracy: {accuracy}")
+    #     accuracies.append(accuracy)
+    # results.append(accuracies)
