@@ -5,6 +5,8 @@ import torch
 from torch import nn, optim, from_numpy
 from tqdm import tqdm
 
+from src.models.metrics import categorical_accuracy, f1_score
+
 
 class NNModelConstruction:
     def __init__(self, train_loader, validation_loader, network, learning_rate=0.001, epochs=50):
@@ -27,45 +29,46 @@ class NNModelConstruction:
         total_step = len(self.train_loader)
         for epoch in tqdm(range(self.epochs)):
             print('Starting epoch {}/{}.'.format(epoch + 1, self.epochs))
-
-            train_history_per_epoch = {'loss': [], 'acc': [], 'f1_score': []}
-            self.model.train()
-
-            for i, batch in enumerate(self.train_loader):
-                start = time.time()
-                x, y, z, w, label = batch
-                # images = input.type(torch.FloatTensor).to(self.device).permute(0, 3, 1, 2)
-                # labels = label.type(torch.LongTensor).unsqueeze(1).to(self.device)
-                del batch
-
-                outputs = self.model(x, y, z, w)
-                loss = self.criterion(outputs, torch.max(label, 1)[1])
-                # overall_acc, avg_per_class_acc, avg_jacc, avg_dice = eval_metrics(labels.squeeze(1),
-                #                                                                   outputs.argmax(dim=1),
-                #                                                                   self.num_of_classes)
-                # train_history_per_epoch['acc'].append(overall_acc)
-                # train_history_per_epoch['f1_score'].append(avg_per_class_acc)
-                train_history_per_epoch['loss'].append(loss.item())
-
-                # Backward and optimize
-                self.optimizer.zero_grad()
-                loss.backward()
-                self.optimizer.step()
-
-                end = time.time()
-                print('Time taken for the batch is {}'.format(end - start))
-
-                if (i + 1) % 10 == 0:
-                    print('Loss at Epoch [{}/{}] and Step [{}/{}] is: {:.4f} and {:.4f}'
-                          .format(epoch + 1, self.epochs, i + 1, total_step,
-                                  np.mean(train_history_per_epoch['loss']), loss.item()))
+            self.train_epoch(epoch, total_step)
 
         # print(summary(self.model.to(self.device), [(1001, 960), (1001, 201), (1001, 400), (1001, 27)]))
         # loss = self.criterion(outputs, torch.max(from_numpy(self.y_train), 1)[1])
         return
 
-    def train_epoch(self):
-        pass
+    def train_epoch(self, epoch, total_step):
+
+        train_history_per_epoch = {'loss': 0, 'acc': 0, 'f1_score': 0}
+        self.model.train()
+        start = time.time()
+        total = 0
+        for i, batch in enumerate(self.train_loader):
+
+            x, y, z, w, label = batch
+            del batch
+
+            outputs = self.model(x, y, z, w)
+            loss = self.criterion(outputs, torch.max(label, 1)[1])
+            # overall_acc, avg_per_class_acc, avg_jacc, avg_dice = eval_metrics(labels.squeeze(1),
+            #                                                                   outputs.argmax(dim=1),
+            #                                                                   self.num_of_classes)
+            train_history_per_epoch['loss'] += loss.item()
+            total += label.size(0)
+            train_history_per_epoch['acc'] += (torch.max(outputs, 1)[1] == torch.max(label, 1)[1]).sum().item()
+            # train_history_per_epoch['f1_score'] += f1_score()
+
+            # Backward and optimize
+            self.optimizer.zero_grad()
+            loss.backward()
+            self.optimizer.step()
+
+            if (i + 1) % 10 == 0:
+                print('Loss at Epoch [{}/{}] and Step [{}/{}] is: {:.4f}'
+                      .format(epoch + 1, self.epochs, i + 1, total_step, train_history_per_epoch['loss'] / 10))
+                train_history_per_epoch['loss'] = 0
+
+        print('Time taken for epoch {} is {}'.format(epoch, time.time() - start))
+        print('Accuracy of the network on the epoch: %d %%' % (
+                100 * train_history_per_epoch['acc'] / total))
 
     def eval(self):
         self.model.eval()
