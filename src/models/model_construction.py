@@ -55,10 +55,10 @@ class NNModelConstruction:
                 end = time.time()
                 print('Time taken for the batch is {}'.format(end - start))
 
-                if (i + 1) % 2 == 0:
-                    print('Loss at Epoch [{}/{}] and Step [{}/{}] is: {:.4f}'
-                          .format(epoch + 1, self.epochs, i + 1, total_step, np.mean(train_history_per_epoch['loss'])))
-
+                if (i + 1) % 10 == 0:
+                    print('Loss at Epoch [{}/{}] and Step [{}/{}] is: {:.4f} and {:.4f}'
+                          .format(epoch + 1, self.epochs, i + 1, total_step,
+                                  np.mean(train_history_per_epoch['loss']), loss.item()))
 
         # print(summary(self.model.to(self.device), [(1001, 960), (1001, 201), (1001, 400), (1001, 27)]))
         # loss = self.criterion(outputs, torch.max(from_numpy(self.y_train), 1)[1])
