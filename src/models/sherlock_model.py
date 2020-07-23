@@ -18,8 +18,10 @@ class SherlockThinSlice(nn.Module):
 
 
 class Sherlock(nn.Module):
-    def __init__(self):
+    def __init__(self, seed):
         super().__init__()
+
+        self.seed = torch.manual_seed(seed)
         self.input_data_slice1 = SherlockThinSlice(960, 300)
         self.input_data_slice2 = SherlockThinSlice(201, 200)
         self.input_data_slice3 = SherlockThinSlice(400, 400)
@@ -51,4 +53,4 @@ class Sherlock(nn.Module):
         x = F.relu(self.dense2(x))
         x = self.dense3(x)
 
-        return F.softmax(x, dim=1)
+        return F.log_softmax(x, dim=1)

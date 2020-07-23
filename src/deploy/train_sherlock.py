@@ -89,7 +89,7 @@ def train_predict_sherlock(x_train, y_train, x_val, y_val, nn_id):
     validation_loader = DataLoader(dataset=validation_data, batch_size=32, shuffle=False)
     print("The length of the validation dataset is {}".format(len(train_data)))
 
-    m = NNModelConstruction(train_loader, validation_loader, Sherlock(), lr, epochs)
+    m = NNModelConstruction(train_loader, validation_loader, Sherlock(10), lr, epochs)
     m.train()
 
     # accuracies = [0]

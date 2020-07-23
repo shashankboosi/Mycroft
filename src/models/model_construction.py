@@ -31,13 +31,11 @@ class NNModelConstruction:
             print('Starting epoch {}/{}.'.format(epoch + 1, self.epochs))
             self.train_epoch(epoch, total_step)
 
-        # print(summary(self.model.to(self.device), [(1001, 960), (1001, 201), (1001, 400), (1001, 27)]))
-        # loss = self.criterion(outputs, torch.max(from_numpy(self.y_train), 1)[1])
         return
 
     def train_epoch(self, epoch, total_step):
 
-        train_history_per_epoch = {'loss': 0, 'acc': 0, 'f1_score': 0}
+        train_history_per_epoch = {'loss': 0, 'acc': 0}
         self.model.train()
         start = time.time()
         total = 0
@@ -48,13 +46,10 @@ class NNModelConstruction:
 
             outputs = self.model(x, y, z, w)
             loss = self.criterion(outputs, torch.max(label, 1)[1])
-            # overall_acc, avg_per_class_acc, avg_jacc, avg_dice = eval_metrics(labels.squeeze(1),
-            #                                                                   outputs.argmax(dim=1),
-            #                                                                   self.num_of_classes)
+
             train_history_per_epoch['loss'] += loss.item()
             total += label.size(0)
             train_history_per_epoch['acc'] += (torch.max(outputs, 1)[1] == torch.max(label, 1)[1]).sum().item()
-            # train_history_per_epoch['f1_score'] += f1_score()
 
             # Backward and optimize
             self.optimizer.zero_grad()
