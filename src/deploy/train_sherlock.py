@@ -79,7 +79,6 @@ def train_predict_sherlock(x_train, y_train, x_val, y_val, nn_id):
 
     lr = 0.0001
     epochs = 100
-    results = []
 
     train_data = WDCDataset(x_train, y_train_cat, transform=ToTensor())
     train_loader = DataLoader(dataset=train_data, batch_size=32, shuffle=True)
@@ -89,13 +88,5 @@ def train_predict_sherlock(x_train, y_train, x_val, y_val, nn_id):
     validation_loader = DataLoader(dataset=validation_data, batch_size=32, shuffle=False)
     print("The length of the validation dataset is {}".format(len(train_data)))
 
-    m = NNModelConstruction(train_loader, validation_loader, Sherlock(10), lr, epochs)
-    m.train()
-
-    # accuracies = [0]
-    # for e in range(epochs):
-    #     m.train_epoch()
-    #     accuracy = m.eval()
-    #     print(f"Epoch: {e}/{epochs}.. Test Accuracy: {accuracy}")
-    #     accuracies.append(accuracy)
-    # results.append(accuracies)
+    m = NNModelConstruction(train_loader, validation_loader, Sherlock(SEED), lr, epochs)
+    m.train(save_cp=True)
