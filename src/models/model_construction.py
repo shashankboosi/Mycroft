@@ -1,11 +1,9 @@
+import os
 import time
 
-import numpy as np
 import torch
-from torch import nn, optim, from_numpy
+from torch import nn, optim
 from tqdm import tqdm
-
-from src.models.metrics import categorical_accuracy, f1_score
 
 
 class NNModelConstruction:
@@ -19,24 +17,37 @@ class NNModelConstruction:
         self.learning_rate = learning_rate
         self.epochs = epochs
 
-        self.model = network
-        self.criterion = nn.CrossEntropyLoss()
-        self.optimizer = optim.Adam(self.model.parameters(), lr=learning_rate)
+        self.criterion = nn.NLLLoss()
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.model = network.to(self.device)
+        self.optimizer = optim.Adam(self.model.parameters(), lr=learning_rate)
 
-    def train(self):
+        if not os.path.exists(os.path.normpath(
+                os.path.join(os.path.dirname(__file__), '..', '..', 'resources', 'output', 'checkpoints'))):
+            os.mkdir(os.path.normpath(
+                os.path.join(os.path.dirname(__file__), '..', '..', 'resources', 'output', 'checkpoints')))
+        self.model_checkpoint_path = os.path.normpath(
+            os.path.join(os.path.dirname(__file__), '..', '..', 'resources', 'output', 'checkpoints'))
+
+    def train(self, save_cp=False):
 
         total_step = len(self.train_loader)
         for epoch in tqdm(range(self.epochs)):
             print('Starting epoch {}/{}.'.format(epoch + 1, self.epochs))
+            self.model.train()
             self.train_epoch(epoch, total_step)
+            if save_cp:
+                torch.save(self.model.state_dict(),
+                           os.path.join(self.model_checkpoint_path, 'CP{}.pth'.format(epoch + 1)))
+                print('Checkpoint {} saved !'.format(epoch + 1))
+            self.eval(epoch)
+            self.model.train()
 
         return
 
     def train_epoch(self, epoch, total_step):
 
         train_history_per_epoch = {'loss': 0, 'acc': 0}
-        self.model.train()
         start = time.time()
         total = 0
         for i, batch in enumerate(self.train_loader):
@@ -62,21 +73,32 @@ class NNModelConstruction:
                 train_history_per_epoch['loss'] = 0
 
         print('Time taken for epoch {} is {}'.format(epoch, time.time() - start))
-        print('Accuracy of the network on the epoch: %d %%' % (
-                100 * train_history_per_epoch['acc'] / total))
+        print('Loss and accuracy of the network on the epoch: {:.4f} & {:.4f}'.format(
+            train_history_per_epoch['loss'] / total,
+            100 * train_history_per_epoch['acc'] / total))
 
-    def eval(self):
+    def eval(self, epoch):
+
+        print('\nEval..')
+        validation_history_per_epoch = {'loss': 0, 'acc': 0}
+        # eval
         self.model.eval()
-        accuracy = 0
+        total = 0
         with torch.no_grad():
-            log_ps = self.model(from_numpy(self.x_test[0]).float(),
-                                from_numpy(self.x_test[1]).float(),
-                                from_numpy(self.x_test[2]).float(),
-                                from_numpy(self.x_test[3]).float()
-                                )
-            ps = torch.exp(log_ps)
-            top_p, top_class = ps.topk(1, dim=1)
-            equals = top_class == torch.from_numpy(self.y_test)
-            accuracy += torch.mean(equals.type(torch.FloatTensor))
+            for j, val_batch in enumerate(self.validation_loader):
+                x, y, z, w, label = val_batch
 
-        return accuracy / self.num_test_samples
+                # Predict
+                output_pred = self.model(x, y, z, w)
+
+                # Calculate loss
+                val_loss = self.criterion(output_pred, torch.max(label, 1)[1])
+
+                total += label.size(0)
+                validation_history_per_epoch['loss'] += val_loss.item()
+                validation_history_per_epoch['acc'] += (
+                            torch.max(output_pred, 1)[1] == torch.max(label, 1)[1]).sum().item()
+
+        print('Loss and accuracy of the network for epoch [{}/{}] : {:.4f} & {:.4f}'.format(
+            epoch + 1, self.epochs, validation_history_per_epoch['loss'] / total,
+            100 * validation_history_per_epoch['acc'] / total))
