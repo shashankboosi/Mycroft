@@ -6,7 +6,7 @@ import warnings
 import pandas as pd
 
 from src.deploy.train_sherlock import train_predict_sherlock
-from src.features.utils import output_file
+from src.helpers.utils import output_file
 
 warnings.filterwarnings("ignore")
 sys.path.append("..")
