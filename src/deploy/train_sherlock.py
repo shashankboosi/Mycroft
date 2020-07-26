@@ -1,14 +1,18 @@
+import os
+import sys
+
 import numpy as np
 import tensorflow as tf
+from models.dataset import WDCDataset, ToTensor
+from models.model_construction import NNModelConstruction
+from models.sherlock_model import Sherlock
 from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.models import model_from_json
 from tensorflow.keras.utils import to_categorical
 from torch.utils.data import DataLoader
 
-from ..models.dataset import WDCDataset, ToTensor
-from ..models.model_construction import NNModelConstruction
-from ..models.sherlock_model import Sherlock
+sys.path.append(os.getcwd())
 
 SEED = 13
 
