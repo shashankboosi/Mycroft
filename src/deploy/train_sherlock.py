@@ -6,9 +6,9 @@ from tensorflow.keras.models import model_from_json
 from tensorflow.keras.utils import to_categorical
 from torch.utils.data import DataLoader
 
-from src.models.dataset import WDCDataset, ToTensor
-from src.models.model_construction import NNModelConstruction
-from src.models.sherlock_model import Sherlock
+from ..models.dataset import WDCDataset, ToTensor
+from ..models.model_construction import NNModelConstruction
+from ..models.sherlock_model import Sherlock
 
 SEED = 13
 
