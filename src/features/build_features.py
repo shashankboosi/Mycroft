@@ -6,10 +6,10 @@ import random
 import pandas as pd
 from google_drive_downloader import GoogleDriveDownloader as gd
 
-from src.features.bag_of_characters import extract_bag_of_characters_features
-from src.features.bag_of_words import extract_bag_of_words_features
-from src.features.paragraph_vectors import infer_paragraph_embeddings_features
-from src.features.word_embeddings import extract_word_embeddings_features
+from bag_of_characters import extract_bag_of_characters_features
+from bag_of_words import extract_bag_of_words_features
+from paragraph_vectors import infer_paragraph_embeddings_features
+from word_embeddings import extract_word_embeddings_features
 
 
 def prepare_feature_extraction():
