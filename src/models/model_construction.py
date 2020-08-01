@@ -33,12 +33,28 @@ class NNModelConstruction:
 
         total_step = len(self.train_loader)
         best_acc = 0
+        prev_loss = 0
+        count = 0
         for epoch in tqdm(range(self.epochs)):
             print('Starting epoch {}/{}.'.format(epoch + 1, self.epochs))
             self.model.train()
             self.train_epoch(epoch, total_step)
             epoch_acc, epoch_loss = self.eval(epoch)
 
+            # Early Stopping of 5
+            if epoch == 0:
+                prev_loss = epoch_loss
+            else:
+                if prev_loss < epoch_loss:
+                    count += 1
+                else:
+                    count = 0
+                prev_loss = epoch_loss
+
+            if count == 5:
+                exit('The model stopped learning and early stopping is applied')
+
+            # Saving the best model based on the best accuracy
             if epoch_acc > best_acc:
                 best_acc = epoch_acc
                 if save_cp:
@@ -103,4 +119,4 @@ class NNModelConstruction:
             epoch + 1, self.epochs, validation_history_per_epoch['loss'] / total,
             100 * validation_history_per_epoch['acc'] / total))
 
-        return validation_history_per_epoch['acc'] / total
+        return validation_history_per_epoch['acc'] / total, validation_history_per_epoch['loss'] / total
