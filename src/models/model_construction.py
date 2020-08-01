@@ -17,7 +17,7 @@ class NNModelConstruction:
         self.learning_rate = learning_rate
         self.epochs = epochs
 
-        self.criterion = nn.NLLLoss()
+        self.criterion = nn.CrossEntropyLoss()
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.model = network.to(self.device)
         self.optimizer = optim.Adam(self.model.parameters(), lr=learning_rate)
@@ -32,15 +32,18 @@ class NNModelConstruction:
     def train(self, save_cp=False):
 
         total_step = len(self.train_loader)
+        best_acc = 0
         for epoch in tqdm(range(self.epochs)):
             print('Starting epoch {}/{}.'.format(epoch + 1, self.epochs))
             self.model.train()
             self.train_epoch(epoch, total_step)
-            if save_cp:
-                torch.save(self.model.state_dict(),
-                           os.path.join(self.model_checkpoint_path, 'CP{}.pth'.format(epoch + 1)))
-                print('Checkpoint {} saved !'.format(epoch + 1))
-            self.eval(epoch)
+            epoch_acc, epoch_loss = self.eval(epoch)
+
+            if epoch_acc > best_acc:
+                best_acc = epoch_acc
+                if save_cp:
+                    torch.save(self.model.state_dict(), os.path.join(self.model_checkpoint_path, 'CP.pth'))
+                print('Checkpoint at epoch {} saved !'.format(epoch + 1))
             self.model.train()
 
         return
@@ -99,3 +102,5 @@ class NNModelConstruction:
         print('Loss and accuracy of the network for epoch [{}/{}] : {:.4f} & {:.4f}%'.format(
             epoch + 1, self.epochs, validation_history_per_epoch['loss'] / total,
             100 * validation_history_per_epoch['acc'] / total))
+
+        return validation_history_per_epoch['acc'] / total
