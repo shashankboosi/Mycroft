@@ -53,12 +53,11 @@ class NNModelConstruction:
         for i, batch in enumerate(self.train_loader):
 
             x, y, z, w, label = batch
-            del batch
 
             outputs = self.model(x, y, z, w)
             loss = self.criterion(outputs, torch.max(label, 1)[1])
 
-            train_history_per_epoch['loss'] += loss.item()
+            train_history_per_epoch['loss'] += loss.item() * label.size(0)
             total += label.size(0)
             train_history_per_epoch['acc'] += (torch.max(outputs, 1)[1] == torch.max(label, 1)[1]).sum().item()
 
@@ -69,10 +68,9 @@ class NNModelConstruction:
 
             if (i + 1) % 10 == 0:
                 print('Loss at Epoch [{}/{}] and Step [{}/{}] is: {:.4f}'
-                      .format(epoch + 1, self.epochs, i + 1, total_step, train_history_per_epoch['loss'] / 10))
-                train_history_per_epoch['loss'] = 0
+                      .format(epoch + 1, self.epochs, i + 1, total_step, train_history_per_epoch['loss'] / total))
 
-        print('Time taken for epoch {} is {}'.format(epoch, time.time() - start))
+        print('Time taken for epoch {} is {}'.format(epoch + 1, time.time() - start))
         print('Loss and accuracy of the network on the epoch: {:.4f} & {:.4f}'.format(
             train_history_per_epoch['loss'] / total,
             100 * train_history_per_epoch['acc'] / total))
@@ -84,21 +82,20 @@ class NNModelConstruction:
         # eval
         self.model.eval()
         total = 0
-        with torch.no_grad():
-            for j, val_batch in enumerate(self.validation_loader):
-                x, y, z, w, label = val_batch
+        for j, val_batch in enumerate(self.validation_loader):
+            x, y, z, w, label = val_batch
 
-                # Predict
-                output_pred = self.model(x, y, z, w)
+            # Predict
+            output_pred = self.model(x, y, z, w)
 
-                # Calculate loss
-                val_loss = self.criterion(output_pred, torch.max(label, 1)[1])
+            # Calculate loss
+            val_loss = self.criterion(output_pred, torch.max(label, 1)[1])
 
-                total += label.size(0)
-                validation_history_per_epoch['loss'] += val_loss.item()
-                validation_history_per_epoch['acc'] += (
-                            torch.max(output_pred, 1)[1] == torch.max(label, 1)[1]).sum().item()
+            total += label.size(0)
+            validation_history_per_epoch['loss'] += val_loss.item() * label.size(0)
+            validation_history_per_epoch['acc'] += (
+                    torch.max(output_pred, 1)[1] == torch.max(label, 1)[1]).sum().item()
 
-        print('Loss and accuracy of the network for epoch [{}/{}] : {:.4f} & {:.4f}'.format(
+        print('Loss and accuracy of the network for epoch [{}/{}] : {:.4f} & {:.4f}%'.format(
             epoch + 1, self.epochs, validation_history_per_epoch['loss'] / total,
             100 * validation_history_per_epoch['acc'] / total))
