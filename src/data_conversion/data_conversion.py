@@ -6,7 +6,6 @@ import pandas as pd
 
 # The final dataset is going to be English-Language Relational Web Tables 2015
 
-
 def get_semantic_types():
     with open('../../resources/data/semantic_types.csv', newline='') as f:
         type_list = list(csv.reader(f))[0]
