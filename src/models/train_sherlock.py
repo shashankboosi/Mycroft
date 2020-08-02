@@ -36,11 +36,11 @@ def train_val_model(x_train, y_train, x_val, y_val, nn_id):
     epochs = 100
 
     train_data = WDCDataset(x_train, y_train_cat, transform=ToTensor())
-    train_loader = DataLoader(dataset=train_data, batch_size=32, shuffle=True)
+    train_loader = DataLoader(dataset=train_data, batch_size=256, shuffle=True)
     print("The length of the train dataset is {}".format(len(train_data)))
 
     validation_data = WDCDataset(x_val, y_val_cat, transform=ToTensor())
-    validation_loader = DataLoader(dataset=validation_data, batch_size=32, shuffle=False)
+    validation_loader = DataLoader(dataset=validation_data, batch_size=256, shuffle=False)
     print("The length of the validation dataset is {}".format(len(train_data)))
 
     m = NNModelConstruction(train_loader, validation_loader, Sherlock(SEED), lr, epochs)
