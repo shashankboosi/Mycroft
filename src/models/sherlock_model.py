@@ -53,4 +53,4 @@ class Sherlock(nn.Module):
         x = F.relu(self.dense2(x))
         x = self.dense3(x)
 
-        return F.log_softmax(x, dim=1)
+        return x
