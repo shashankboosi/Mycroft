@@ -1,21 +1,25 @@
 import os
 import time
 
+import numpy as np
 import torch
+from sklearn.preprocessing import LabelEncoder
 from torch import nn, optim
 from tqdm import tqdm
 
 
 class NNModelConstruction:
-    def __init__(self, train_loader, validation_loader, network, learning_rate=0.001, epochs=50):
+    def __init__(self, train_loader, validation_loader, test_loader, network, nn_id, learning_rate=0.001, epochs=50):
         """
         Load Data, initialize a given network structure and set learning rate
         """
 
+        self.test_loader = test_loader
         self.train_loader = train_loader
         self.validation_loader = validation_loader
         self.learning_rate = learning_rate
         self.epochs = epochs
+        self.nn_id = nn_id
 
         self.criterion = nn.CrossEntropyLoss()
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -36,6 +40,8 @@ class NNModelConstruction:
         prev_loss = 0
         count = 0
         for epoch in tqdm(range(self.epochs)):
+            print()
+            print('-----------------------------------------------------')
             print('Starting epoch {}/{}.'.format(epoch + 1, self.epochs))
             self.model.train()
             self.train_epoch(epoch, total_step)
@@ -58,8 +64,10 @@ class NNModelConstruction:
             if epoch_acc > best_acc:
                 best_acc = epoch_acc
                 if save_cp:
-                    torch.save(self.model.state_dict(), os.path.join(self.model_checkpoint_path, 'CP.pth'))
+                    torch.save(self.model.state_dict(),
+                               os.path.join(self.model_checkpoint_path, 'CP-{}.pth'.format(self.nn_id)))
                 print('Checkpoint at epoch {} saved !'.format(epoch + 1))
+                print('Best val accuracy is {}%'.format(best_acc * 100))
             self.model.train()
 
         return
@@ -85,22 +93,24 @@ class NNModelConstruction:
             loss.backward()
             self.optimizer.step()
 
-            if (i + 1) % 10 == 0:
+            if (i + 1) % 2 == 0:
                 print('Loss at Epoch [{}/{}] and Step [{}/{}] is: {:.4f}'
                       .format(epoch + 1, self.epochs, i + 1, total_step, train_history_per_epoch['loss'] / total))
 
-        print('Time taken for epoch {} is {}'.format(epoch + 1, time.time() - start))
+        time_elapsed = time.time() - start
+        print('Time taken for epoch {} is {:.0f}m {:.0f}s'.format(epoch + 1, time_elapsed // 60, time_elapsed % 60))
         print('Loss and accuracy of the network on the epoch: {:.4f} & {:.4f}'.format(
             train_history_per_epoch['loss'] / total,
             100 * train_history_per_epoch['acc'] / total))
 
     def eval(self, epoch):
 
+        # Validate the training data
         print('\nEval..')
+
         validation_history_per_epoch = {'loss': 0, 'acc': 0}
-        # eval
-        self.model.eval()
         total = 0
+        self.model.eval()
         for j, val_batch in enumerate(self.validation_loader):
             x, y, z, w, label = val_batch
 
@@ -120,3 +130,39 @@ class NNModelConstruction:
             100 * validation_history_per_epoch['acc'] / total))
 
         return validation_history_per_epoch['acc'] / total, validation_history_per_epoch['loss'] / total
+
+    def predict(self):
+
+        # Load the pytorch file and define model
+        print('\nPrediction..')
+        net = self.model
+        net.load_state_dict(torch.load(os.path.join(self.model_checkpoint_path, 'CP-{}.pth'.format(self.nn_id))))
+        net.eval()
+
+        test_history = {'loss': 0, 'acc': 0}
+
+        total = 0
+        prediction_labels = []
+        with torch.no_grad():
+            for k, test_batch in enumerate(self.test_loader):
+                x, y, z, w, label = test_batch
+
+                # Predict test outputs
+                output_pred = self.model(x, y, z, w)
+
+                # Calculate test loss
+                prediction_labels.append(torch.argmax(output_pred, 1))
+                test_loss = self.criterion(output_pred, torch.argmax(label, 1))
+
+                total += label.size(0)
+                test_history['loss'] += test_loss.item() * label.size(0)
+                test_history['acc'] += (torch.max(output_pred, 1)[1] == torch.max(label, 1)[1]).sum().item()
+
+        print('Prediction loss and accuracy of the network: {:.4f} & {:.4f}%'.format(test_history['loss'] / total,
+                                                                                     100 * test_history['acc'] / total))
+
+        encoder = LabelEncoder()
+        encoder.classes_ = np.load('./models/classes_{}.npy'.format(self.nn_id), allow_pickle=True)
+        y_pred_labels = encoder.inverse_transform(torch.cat(prediction_labels))
+
+        return y_pred_labels

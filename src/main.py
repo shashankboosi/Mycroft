@@ -1,14 +1,13 @@
+import argparse
 import ast
 import pickle
 import sys
 import warnings
-import argparse
 
 import pandas as pd
-
-from models.train_sherlock import train_val_model
-from helpers.utils import output_file
 from features.build_features import build_features
+from helpers.utils import output_file
+from models.train_predict_model import train_val_predict_model
 
 warnings.filterwarnings("ignore")
 sys.path.append("..")
@@ -79,11 +78,4 @@ if __name__ == '__main__':
         sys.exit("Choose the appropriate arguments for the input data")
 
     # For simplicity provide X_train as validation set.
-    train_val_model(X_train, y_train, X_train, y_train, 'retrain_minimal_sample')
-    print('Trained new model.')
-
-    # Predict labels using the retrained model (with nn_id retrain_minimal_sample)
-    # predicted_labels = predict_sherlock(X_train, 'retrain_minimal_sample')
-    # print('Predicted labels: ', predicted_labels, 'true labels: ', y_train)
-    #
-    # f1_score(y_train, predicted_labels, average='weighted')
+    train_val_predict_model(X_train, y_train, X_train, y_train, args.input_data)
