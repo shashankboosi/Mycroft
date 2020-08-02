@@ -156,7 +156,7 @@ class NNModelConstruction:
 
                 total += label.size(0)
                 test_history['loss'] += test_loss.item() * label.size(0)
-                test_history['acc'] += (torch.max(output_pred, 1)[1] == torch.max(label, 1)[1]).sum().item()
+                test_history['acc'] += (torch.max(output_pred.data, 1)[1] == torch.max(label, 1)[1]).sum().item()
 
         print('Prediction loss and accuracy of the network: {:.4f} & {:.4f}%'.format(test_history['loss'] / total,
                                                                                      100 * test_history['acc'] / total))
