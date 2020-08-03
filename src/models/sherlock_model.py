@@ -18,10 +18,11 @@ class SherlockThinSlice(nn.Module):
 
 
 class Sherlock(nn.Module):
-    def __init__(self, seed):
+    def __init__(self, seed, label_categories=78):
         super().__init__()
 
         self.seed = torch.manual_seed(seed)
+        self.label_categories = label_categories
         self.input_data_slice1 = SherlockThinSlice(960, 300)
         self.input_data_slice2 = SherlockThinSlice(201, 200)
         self.input_data_slice3 = SherlockThinSlice(400, 400)
@@ -29,7 +30,7 @@ class Sherlock(nn.Module):
         self.bn2 = nn.BatchNorm1d(927, momentum=0.99, eps=0.001)
         self.dense1 = nn.Linear(927, 500)
         self.dense2 = nn.Linear(500, 500)
-        self.dense3 = nn.Linear(500, 78)
+        self.dense3 = nn.Linear(500, self.label_categories)
 
     def forward(self, x, y, z, w):
         """

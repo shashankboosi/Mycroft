@@ -20,7 +20,7 @@ SEED = 13
 #        y_train and y_val arrays of labels,
 #        nn_id indicating whether to take a retrained model or sherlock
 # Output: Stored retrained model
-def train_val_predict_model(x_train, y_train, x_val, y_val, nn_id):
+def train_val_predict_model(x_train, y_train, x_val, y_val, nn_id, label_categories):
     encoder = LabelEncoder()
     encoder.fit(y_train)
     np.save('./models/classes_{}.npy'.format(nn_id), encoder.classes_)
@@ -50,7 +50,7 @@ def train_val_predict_model(x_train, y_train, x_val, y_val, nn_id):
     test_loader = DataLoader(dataset=test_data, batch_size=256, shuffle=False)
     print("The length of the test dataset is {}".format(len(test_data)))
 
-    m = NNModelConstruction(train_loader, validation_loader, test_loader, Sherlock(SEED), nn_id, lr, epochs)
+    m = NNModelConstruction(train_loader, validation_loader, test_loader, Sherlock(SEED, label_categories=label_categories), nn_id, lr, epochs)
     m.train(save_cp=True)
     print('Trained new model.')
 
