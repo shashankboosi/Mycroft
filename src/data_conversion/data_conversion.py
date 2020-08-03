@@ -100,7 +100,8 @@ class WebTableFormatToMycroftFormat:
         Returns:
             List -- A list of final values in the format [[label, [data]], [label, [data]] ... ]
         """
-        bad_chars = ["#", ".", "!", ":", ";"]
+        bad_chars = ['\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '>', '#', '+', '-', '.', '!', '$', '\'', ';',
+                     ':']
         transposed_list = relation
         if orientation == "VERTICAL":
             transposed_list = list(map(list, zip(*relation)))
