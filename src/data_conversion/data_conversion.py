@@ -1,5 +1,7 @@
 import csv
 import json
+import os
+from glob import glob
 
 import pandas as pd
 
@@ -67,16 +69,23 @@ class WebTableFormatToMycroftFormat:
         which can then be sent to pandas Data frame for cleaning.
 
         Arguments:
-            path {String} -- Path to the file
+            path {String} -- Path to the file/Directory
 
         Returns:
             List[Dict] -- data_list
         """
         data_list = []
-        with open(self.input_file_path, encoding="utf-8") as file:
-            for jsonObjects in file:
-                data_dict = json.loads(jsonObjects)
-                data_list.append(data_dict)
+        if os.path.isdir(self.input_file_path):
+            for filename in glob(os.path.join(self.input_file_path, '*.json')):
+                with open(filename, encoding="utf-8") as file:
+                    data = json.load(file)
+                    data_list.append(data)
+        else:
+            data_list = []
+            with open(self.input_file_path, encoding="utf-8") as file:
+                for jsonObjects in file:
+                    data_dict = json.loads(jsonObjects)
+                    data_list.append(data_dict)
 
         return data_list
 
@@ -102,7 +111,13 @@ class WebTableFormatToMycroftFormat:
                 i for i in transposed_list[i][0] if i not in bad_chars
             ).lower().replace(" ", "")
             if transformed_string != "" and transformed_string in self.semantic_types:
-                result_list.append([str(transformed_string), transposed_list[i][1:]])
+                data = transposed_list[i][1:]
+                data = [i.replace('-', ' ').replace('"', ' ').strip() for i in data]
+                if '' in data:
+                    data = list(filter(None, data))
+                if len(data) < 3:
+                    continue
+                result_list.append([str(transformed_string), data])
             else:
                 continue
         return result_list
@@ -125,8 +140,3 @@ class WebTableFormatToMycroftFormat:
             for horizontal in zip(*data_frame.iloc[row_number]["relation"]):
                 print(horizontal, end="\n")
         print()
-
-
-input_converter = WebTableFormatToMycroftFormat("../../resources/data/sample",
-                                                "../../resources/output/test_sample_with_filter.csv")
-input_converter.transform()
