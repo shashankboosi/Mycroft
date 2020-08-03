@@ -2,7 +2,6 @@ import os
 import sys
 
 import numpy as np
-import tensorflow as tf
 from sklearn.metrics import f1_score
 from sklearn.preprocessing import LabelEncoder
 from torch.utils.data import DataLoader
@@ -26,11 +25,11 @@ def train_val_predict_model(x_train, y_train, x_val, y_val, nn_id, label_categor
     np.save('./models/classes_{}.npy'.format(nn_id), encoder.classes_)
 
     y_train_int = encoder.transform(y_train)
-    y_train_cat = tf.keras.utils.to_categorical(y_train_int)
+    # y_train_cat = tf.keras.utils.to_categorical(y_train_int)
 
     try:
         y_val_int = encoder.transform(y_val)
-        y_val_cat = tf.keras.utils.to_categorical(y_val_int)
+        # y_val_cat = tf.keras.utils.to_categorical(y_val_int)
     except ValueError:
         print('Validation labels should only contain labels that exist in deploy file.')
 
@@ -38,19 +37,20 @@ def train_val_predict_model(x_train, y_train, x_val, y_val, nn_id, label_categor
     epochs = 100
 
     # Divide the dataset into train, validation and test
-    train_data = WDCDataset(x_train, y_train_cat, transform=ToTensor())
+    train_data = WDCDataset(x_train, y_train_int, transform=ToTensor())
     train_loader = DataLoader(dataset=train_data, batch_size=256, shuffle=True)
     print("The length of the train dataset is {}".format(len(train_data)))
 
-    validation_data = WDCDataset(x_val, y_val_cat, transform=ToTensor())
+    validation_data = WDCDataset(x_val, y_val_int, transform=ToTensor())
     validation_loader = DataLoader(dataset=validation_data, batch_size=256, shuffle=False)
     print("The length of the validation dataset is {}".format(len(train_data)))
 
-    test_data = WDCDataset(x_train, y_train_cat, transform=ToTensor())
+    test_data = WDCDataset(x_train, y_train_int, transform=ToTensor())
     test_loader = DataLoader(dataset=test_data, batch_size=256, shuffle=False)
     print("The length of the test dataset is {}".format(len(test_data)))
 
-    m = NNModelConstruction(train_loader, validation_loader, test_loader, Sherlock(SEED, label_categories=label_categories), nn_id, lr, epochs)
+    m = NNModelConstruction(train_loader, validation_loader, test_loader,
+                            Sherlock(SEED, label_categories=label_categories), nn_id, lr, epochs)
     m.train(save_cp=True)
     print('Trained new model.')
 

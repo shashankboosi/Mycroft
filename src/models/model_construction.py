@@ -80,13 +80,14 @@ class NNModelConstruction:
         for i, batch in enumerate(self.train_loader):
 
             x, y, z, w, label = batch
+            label = label.type(torch.LongTensor)
 
             outputs = self.model(x, y, z, w)
-            loss = self.criterion(outputs, torch.argmax(label, 1))
+            loss = self.criterion(outputs, label)
 
             train_history_per_epoch['loss'] += loss.item() * label.size(0)
             total += label.size(0)
-            train_history_per_epoch['acc'] += (torch.max(outputs.data, 1)[1] == torch.max(label, 1)[1]).sum().item()
+            train_history_per_epoch['acc'] += (torch.max(outputs.data, 1)[1] == label).sum().item()
 
             # Backward and optimize
             self.optimizer.zero_grad()
@@ -113,17 +114,18 @@ class NNModelConstruction:
         self.model.eval()
         for j, val_batch in enumerate(self.validation_loader):
             x, y, z, w, label = val_batch
+            label = label.type(torch.LongTensor)
 
             # Predict
             output_pred = self.model(x, y, z, w)
 
             # Calculate loss
-            val_loss = self.criterion(output_pred, torch.argmax(label, 1))
+            val_loss = self.criterion(output_pred, label)
 
             total += label.size(0)
             validation_history_per_epoch['loss'] += val_loss.item() * label.size(0)
             validation_history_per_epoch['acc'] += (
-                    torch.max(output_pred.data, 1)[1] == torch.max(label, 1)[1]).sum().item()
+                    torch.max(output_pred.data, 1)[1] == label).sum().item()
 
         print('Validation loss and accuracy of the network for epoch [{}/{}] : {:.4f} & {:.4f}%'.format(
             epoch + 1, self.epochs, validation_history_per_epoch['loss'] / total,
@@ -146,17 +148,18 @@ class NNModelConstruction:
         with torch.no_grad():
             for k, test_batch in enumerate(self.test_loader):
                 x, y, z, w, label = test_batch
+                label = label.type(torch.LongTensor)
 
                 # Predict test outputs
                 output_pred = self.model(x, y, z, w)
 
                 # Calculate test loss
                 prediction_labels.append(torch.argmax(output_pred, 1))
-                test_loss = self.criterion(output_pred, torch.argmax(label, 1))
+                test_loss = self.criterion(output_pred, label)
 
                 total += label.size(0)
                 test_history['loss'] += test_loss.item() * label.size(0)
-                test_history['acc'] += (torch.max(output_pred.data, 1)[1] == torch.max(label, 1)[1]).sum().item()
+                test_history['acc'] += (torch.max(output_pred.data, 1)[1] == label).sum().item()
 
         print('Prediction loss and accuracy of the network: {:.4f} & {:.4f}%'.format(test_history['loss'] / total,
                                                                                      100 * test_history['acc'] / total))
