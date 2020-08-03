@@ -15,11 +15,18 @@ sys.path.append(os.getcwd())
 SEED = 13
 
 
-# Input: X and X_val numpy ndarray as returned by build_features,
-#        Y and y_val arrays of labels,
-#        nn_id indicating whether to take a retrained model or sherlock
-# Output: Stored retrained model
 def train_val_predict_model(X, Y, nn_id, train_data_split, data_split, label_categories):
+    """This function performs operations on the NN model such as train, validate and test. It also calculates the
+    metrics like categorical accuracy and F1-score
+
+    :param X: numpy ndarray as returned by build_features
+    :param Y: array of labels
+    :param nn_id: class selection between sherlock or mycroft data
+    :param train_data_split: percentage of train data to be used
+    :param data_split: Condition to split the data or not
+    :param label_categories: It it the count of the number of labels available in the dataset (Max: 78)
+    :return: Final predictions and calculates the F1-score
+    """
     encoder = LabelEncoder()
     encoder.fit(Y)
     np.save('./models/classes_{}.npy'.format(nn_id), encoder.classes_)
@@ -39,7 +46,8 @@ def train_val_predict_model(X, Y, nn_id, train_data_split, data_split, label_cat
         validation_size = int(0.5 * remaining_size)
         test_size = remaining_size - validation_size
 
-        train_dataset, validation_dataset, test_dataset = random_split(dataset, [train_size, validation_size, test_size])
+        train_dataset, validation_dataset, test_dataset = random_split(dataset,
+                                                                       [train_size, validation_size, test_size])
         print('Train dataset', len(train_dataset))
         print('Validation dataset', len(validation_dataset))
         print('Test dataset', len(test_dataset))

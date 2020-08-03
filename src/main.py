@@ -84,5 +84,4 @@ if __name__ == '__main__':
     else:
         sys.exit("Choose the appropriate arguments for the input data")
 
-    # For simplicity provide X as validation set.
     train_val_predict_model(X, Y, args.input_data, args.train_split, args.split, label_categories)
