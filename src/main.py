@@ -25,6 +25,10 @@ if __name__ == '__main__':
                         help="Choose the type of data (options: sherlock, mycroft)")
     parser.add_argument('--extract', '-e', default=False, type=bool,
                         help="Choose if you want to generate features or not")
+    parser.add_argument('--split', '-s', default=False, type=bool,
+                        help="Choose if you want to split the data or not")
+    parser.add_argument('--train_split', '-ts', default=0.7, type=float,
+                        help="Choose the percentage of the train data split (e.g: 0.7 -> 70% train)")
 
     args = parser.parse_args()
 
@@ -38,15 +42,15 @@ if __name__ == '__main__':
         label_categories = len(np.unique(np.concatenate(labels.values)))
 
         if args.extract:
-            X_train, y_train = extract_features(data, labels)
+            X, Y = extract_features(data, labels)
             print('Features extracted')
         else:
             # Load pre-extracted features of sample file
             with open('../resources/data/sherlock/processed/X_train.data', 'rb') as f:
-                X_train = pickle.load(f)
+                X = pickle.load(f)
 
             with open('../resources/data/sherlock/processed/y_train.data', 'rb') as f:
-                y_train = pickle.load(f)
+                Y = pickle.load(f)
 
     elif args.input_data == 'mycroft':
         input_data = pd.read_csv("../resources/output/test_sample_with_filter.csv", names=["csv_data"])
@@ -64,21 +68,20 @@ if __name__ == '__main__':
         label_categories = len(labels['label'].unique())
 
         if args.extract:
-            X_train, y_train = extract_features(data, labels)
+            X, Y = extract_features(data, labels)
             print('Features extracted')
 
             # Save the extracted features
-            output_file(X_train, "../resources/output/train_data.p")
-            output_file(y_train, "../resources/output/test_data.p")
+            output_file(X, "../resources/output/train_data.p")
+            output_file(Y, "../resources/output/test_data.p")
         else:
             # Load pre-extracted features of sample file
             with open('../resources/output/train_data.p', 'rb') as f:
-                X_train = pickle.load(f)
+                X = pickle.load(f)
 
             with open('../resources/output/test_data.p', 'rb') as f:
-                y_train = pickle.load(f)
+                Y = pickle.load(f)
     else:
         sys.exit("Choose the appropriate arguments for the input data")
 
-    # For simplicity provide X_train as validation set.
-    train_val_predict_model(X_train, y_train, X_train, y_train, args.input_data, label_categories)
+    train_val_predict_model(X, Y, args.input_data, args.train_split, args.split, label_categories)

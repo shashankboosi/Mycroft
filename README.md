@@ -78,3 +78,7 @@ In this stage we convert the above structure into Mycroft format shown below
 
 1. Deeply understand Sherlock by going through the paper thoroughly and understand the feature classifications.
 2. Try exploiting sherlock and try adding more features to our research.
+
+# Dataset
+
+http://webdatacommons.org/webtables/2015/downloadInstructions.html (Used the first folder to test my project)

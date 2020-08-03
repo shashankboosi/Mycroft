@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 from torch.utils.data import Dataset
 
@@ -36,4 +37,4 @@ class ToTensor:
     def __call__(self, batch_sample):
         x, y, z, w, labels = batch_sample
         return torch.from_numpy(x).float(), torch.from_numpy(y).float(), torch.from_numpy(z).float(), \
-               torch.from_numpy(w).float(), torch.from_numpy(labels)
+               torch.from_numpy(w).float(), torch.from_numpy(np.asarray(labels))
