@@ -4,6 +4,7 @@ import pickle
 import sys
 import warnings
 
+import numpy as np
 import pandas as pd
 from features.build_features import build_features
 from helpers.utils import output_file
@@ -34,6 +35,8 @@ if __name__ == '__main__':
         data.head()
         labels.head()
 
+        label_categories = len(np.unique(np.concatenate(labels.values)))
+
         if args.extract:
             X_train, y_train = extract_features(data, labels)
             print('Features extracted')
@@ -46,19 +49,19 @@ if __name__ == '__main__':
                 y_train = pickle.load(f)
 
     elif args.input_data == 'mycroft':
-        data = pd.read_csv("../resources/output/test_sample_with_filter.csv", names=["csv_data"])
+        input_data = pd.read_csv("../resources/output/test_sample_with_filter.csv", names=["csv_data"])
 
-        labels = (
-            data["csv_data"]
+        transform_data = (
+            input_data["csv_data"]
                 .apply(lambda i: [j for j in ast.literal_eval(i)])
                 .apply(pd.Series)
                 .rename(columns={0: "label", 1: "data"})
         )
 
-        data = pd.DataFrame(labels['data'][:100])
-        labels = pd.DataFrame(labels['label'][:100])
+        data = pd.DataFrame(transform_data['data'])
+        labels = pd.DataFrame(transform_data['label'])
 
-        print(len(labels['label'].unique()))
+        label_categories = len(labels['label'].unique())
 
         if args.extract:
             X_train, y_train = extract_features(data, labels)
@@ -78,4 +81,4 @@ if __name__ == '__main__':
         sys.exit("Choose the appropriate arguments for the input data")
 
     # For simplicity provide X_train as validation set.
-    train_val_predict_model(X_train, y_train, X_train, y_train, args.input_data)
+    train_val_predict_model(X_train, y_train, X_train, y_train, args.input_data, label_categories)

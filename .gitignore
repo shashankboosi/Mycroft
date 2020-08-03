@@ -49,3 +49,5 @@ venv.bak/
 glove.6B.50d.txt
 par_vec_trained_400.pkl.docvecs.vectors_docs.npy
 resources/output/checkpoints
+resources/report
+notebooks
