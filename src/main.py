@@ -25,6 +25,10 @@ if __name__ == '__main__':
                         help="Choose the type of data (options: sherlock, mycroft)")
     parser.add_argument('--extract', '-e', default=False, type=bool,
                         help="Choose if you want to generate features or not")
+    parser.add_argument('--split', '-s', default=False, type=bool,
+                        help="Choose if you want to split the data or not")
+    parser.add_argument('--train_split', '-ts', default=0.7, type=float,
+                        help="Choose the percentage of the train data split (e.g: 0.7 -> 70% train)")
 
     args = parser.parse_args()
 
@@ -81,4 +85,4 @@ if __name__ == '__main__':
         sys.exit("Choose the appropriate arguments for the input data")
 
     # For simplicity provide X as validation set.
-    train_val_predict_model(X, Y, args.input_data, label_categories)
+    train_val_predict_model(X, Y, args.input_data, args.train_split, args.split, label_categories)

@@ -145,6 +145,7 @@ class NNModelConstruction:
 
         total = 0
         prediction_labels = []
+        true_labels = []
         with torch.no_grad():
             for k, test_batch in enumerate(self.test_loader):
                 x, y, z, w, label = test_batch
@@ -154,8 +155,9 @@ class NNModelConstruction:
                 output_pred = self.model(x, y, z, w)
 
                 # Calculate test loss
-                prediction_labels.append(torch.argmax(output_pred, 1))
                 test_loss = self.criterion(output_pred, label)
+                prediction_labels.append(torch.argmax(output_pred, 1))
+                true_labels.append(label)
 
                 total += label.size(0)
                 test_history['loss'] += test_loss.item() * label.size(0)
@@ -167,5 +169,10 @@ class NNModelConstruction:
         encoder = LabelEncoder()
         encoder.classes_ = np.load('./models/classes_{}.npy'.format(self.nn_id), allow_pickle=True)
         y_pred_labels = encoder.inverse_transform(torch.cat(prediction_labels))
+        y_true_labels = encoder.inverse_transform(torch.cat(true_labels))
 
-        return y_pred_labels
+        print('Predicted labels: ', y_pred_labels, 'true labels: ', y_true_labels)
+        print('The number of correct predictions are {}/{}'.format(np.count_nonzero(y_pred_labels == y_true_labels),
+                                                                   total))
+
+        return y_pred_labels, y_true_labels

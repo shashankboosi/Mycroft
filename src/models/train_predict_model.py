@@ -4,7 +4,7 @@ import sys
 import numpy as np
 from sklearn.metrics import f1_score
 from sklearn.preprocessing import LabelEncoder
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, random_split
 
 from .dataset import WDCDataset, ToTensor
 from .model_construction import NNModelConstruction
@@ -19,7 +19,7 @@ SEED = 13
 #        Y and y_val arrays of labels,
 #        nn_id indicating whether to take a retrained model or sherlock
 # Output: Stored retrained model
-def train_val_predict_model(X, Y, nn_id, label_categories):
+def train_val_predict_model(X, Y, nn_id, train_data_split, data_split, label_categories):
     encoder = LabelEncoder()
     encoder.fit(Y)
     np.save('./models/classes_{}.npy'.format(nn_id), encoder.classes_)
@@ -29,17 +29,29 @@ def train_val_predict_model(X, Y, nn_id, label_categories):
     epochs = 100
 
     # Divide the dataset into train, validation and test
-    train_data = WDCDataset(X, y_int, transform=ToTensor())
-    train_loader = DataLoader(dataset=train_data, batch_size=256, shuffle=True)
-    print("The length of the train dataset is {}".format(len(train_data)))
+    dataset = WDCDataset(X, y_int, transform=ToTensor())
 
-    validation_data = WDCDataset(X, y_int, transform=ToTensor())
-    validation_loader = DataLoader(dataset=validation_data, batch_size=256, shuffle=False)
-    print("The length of the validation dataset is {}".format(len(train_data)))
+    if data_split:
 
-    test_data = WDCDataset(X, y_int, transform=ToTensor())
-    test_loader = DataLoader(dataset=test_data, batch_size=256, shuffle=False)
-    print("The length of the test dataset is {}".format(len(test_data)))
+        # Train, validation and test split
+        train_size = int(train_data_split * len(dataset))
+        remaining_size = len(dataset) - train_size
+        validation_size = int(0.5 * remaining_size)
+        test_size = remaining_size - validation_size
+
+        train_dataset, validation_dataset, test_dataset = random_split(dataset, [train_size, validation_size, test_size])
+        print('Train dataset', len(train_dataset))
+        print('Validation dataset', len(validation_dataset))
+        print('Test dataset', len(test_dataset))
+
+        train_loader = DataLoader(dataset=train_dataset, batch_size=256, shuffle=True)
+        validation_loader = DataLoader(dataset=validation_dataset, batch_size=256, shuffle=False)
+        test_loader = DataLoader(dataset=test_dataset, batch_size=256, shuffle=False)
+    else:
+        train_loader = DataLoader(dataset=dataset, batch_size=256, shuffle=True)
+        validation_loader = DataLoader(dataset=dataset, batch_size=256, shuffle=False)
+        test_loader = DataLoader(dataset=dataset, batch_size=256, shuffle=False)
+        print('Train, validation and test dataset size', len(dataset))
 
     m = NNModelConstruction(train_loader, validation_loader, test_loader,
                             Sherlock(SEED, label_categories=label_categories), nn_id, lr, epochs)
@@ -47,10 +59,7 @@ def train_val_predict_model(X, Y, nn_id, label_categories):
     print('Trained new model.')
 
     # Predict labels using the model
-    predicted_labels = m.predict()
-    true_labels = encoder.inverse_transform(y_int)
-    print('Predicted labels: ', predicted_labels, 'true labels: ', true_labels)
-    print('The number of correct predictions are {}/{}'.format(np.count_nonzero(predicted_labels == true_labels),
-                                                               len(test_data)))
+    predicted_labels, true_labels = m.predict()
+
     # F1-score of the best model prediction
     print('The final f1-score is {}%'.format(f1_score(true_labels, predicted_labels, average='weighted') * 100))
