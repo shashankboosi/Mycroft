@@ -16,9 +16,10 @@ def get_semantic_types():
 
 
 class WebTableFormatToMycroftFormat:
-    def __init__(self, input_file_path, output_file_path):
+    def __init__(self, input_file_path, output_file_path, no_of_tables):
         self.input_file_path = input_file_path
         self.output_file_path = output_file_path
+        self.no_of_tables = no_of_tables
         self.input_data = self.get_data_from_file()
         self.semantic_types = get_semantic_types()
 
@@ -77,6 +78,8 @@ class WebTableFormatToMycroftFormat:
         data_list = []
         if os.path.isdir(self.input_file_path):
             for filename in glob(os.path.join(self.input_file_path, '*.json')):
+                if len(data_list) == self.no_of_tables:
+                    break
                 with open(filename, encoding="utf-8") as file:
                     data = json.load(file)
                     data_list.append(data)
@@ -84,6 +87,8 @@ class WebTableFormatToMycroftFormat:
             data_list = []
             with open(self.input_file_path, encoding="utf-8") as file:
                 for jsonObjects in file:
+                    if len(data_list) == self.no_of_tables:
+                        break
                     data_dict = json.loads(jsonObjects)
                     data_list.append(data_dict)
 

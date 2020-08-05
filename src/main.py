@@ -53,7 +53,7 @@ if __name__ == '__main__':
                 Y = pickle.load(f)
 
     elif args.input_data == 'mycroft':
-        input_data = pd.read_csv("../resources/output/test_sample_with_filter.csv", names=["csv_data"])
+        input_data = pd.read_csv("../resources/output/sample_with_filter.csv", names=["csv_data"])
 
         transform_data = (
             input_data["csv_data"]
