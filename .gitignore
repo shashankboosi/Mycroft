@@ -55,3 +55,5 @@ resources/data/mycroft
 resources/data/mini-data
 resources/data/0
 resources/output/mycroft*.csv
+resources/output/features/train*.p
+resources/output/features/test*.p
