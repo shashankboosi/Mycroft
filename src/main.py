@@ -60,10 +60,11 @@ if __name__ == '__main__':
 
     elif args.input_data == 'mycroft':
 
-        if not os.path.exists(os.path.normpath(
-                os.path.join(os.path.dirname(__file__), '..', 'resources', 'output',
-                             'mycroft_{}_tables.csv'.format(args.no_of_tables)))):
-            exit("Please generate the mycroft data with no of tables: {} :)".format(args.no_of_tables))
+        if not args.sample:
+            if not os.path.exists(os.path.normpath(
+                    os.path.join(os.path.dirname(__file__), '..', 'resources', 'output',
+                                 'mycroft_{}_tables.csv'.format(args.no_of_tables)))):
+                exit("Please generate the mycroft data with no of tables: {} :)".format(args.no_of_tables))
 
         if args.sample:
             input_data = pd.read_csv("../resources/output/sample_with_filter.csv".format(args.no_of_tables),
