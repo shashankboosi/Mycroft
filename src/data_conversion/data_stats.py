@@ -24,3 +24,6 @@ def get_data_stats(path):
     labels = pd.DataFrame(transform_data['label'])
     label_categories = len(labels['label'].unique())
     print("Number of unique labels: {}".format(label_categories))
+
+# Can be used when you want to check the stats of a file directly
+# get_data_stats("../../resources/output/mycroft_with_filters.csv")
