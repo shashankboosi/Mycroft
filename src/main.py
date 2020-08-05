@@ -1,5 +1,6 @@
 import argparse
 import ast
+import os
 import pickle
 import sys
 import warnings
@@ -29,6 +30,11 @@ if __name__ == '__main__':
                         help="Choose if you want to split the data or not")
     parser.add_argument('--train_split', '-ts', default=0.7, type=float,
                         help="Choose the percentage of the train data split (e.g: 0.7 -> 70% train)")
+    parser.add_argument('--no_of_tables', '-num', default=5000, type=int,
+                        help="Choose the files with number of tables that is required for processing (options: 5000, "
+                             "10000, 100000, 500000)")
+    parser.add_argument('--sample', '-smp', default=False, type=bool,
+                        help="Choose if you want to use sample or not")
 
     args = parser.parse_args()
 
@@ -53,7 +59,18 @@ if __name__ == '__main__':
                 Y = pickle.load(f)
 
     elif args.input_data == 'mycroft':
-        input_data = pd.read_csv("../resources/output/sample_with_filter.csv", names=["csv_data"])
+
+        if not os.path.exists(os.path.normpath(
+                os.path.join(os.path.dirname(__file__), '..', 'resources', 'output',
+                             'mycroft_{}_tables.csv'.format(args.no_of_tables)))):
+            exit("Please generate the mycroft data with no of tables: {} :)".format(args.no_of_tables))
+
+        if args.sample:
+            input_data = pd.read_csv("../resources/output/sample_with_filter.csv".format(args.no_of_tables),
+                                     names=["csv_data"])
+        else:
+            input_data = pd.read_csv("../resources/output/mycroft_{}_tables.csv".format(args.no_of_tables),
+                                     names=["csv_data"])
 
         transform_data = (
             input_data["csv_data"]
@@ -67,19 +84,27 @@ if __name__ == '__main__':
 
         label_categories = len(labels['label'].unique())
 
+        if args.sample:
+            feature_train_path = "../resources/output/features/sample_train_data.p"
+            feature_test_path = "../resources/output/features/sample_test_data.p"
+        else:
+            feature_train_path = "../resources/output/features/train_data_{}.p".format(args.no_of_tables)
+            feature_test_path = "../resources/output/features/test_data_{}.p".format(args.no_of_tables)
+
         if args.extract:
             X, Y = extract_features(data, labels)
             print('Features extracted')
 
             # Save the extracted features
-            output_file(X, "../resources/output/train_data.p")
-            output_file(Y, "../resources/output/test_data.p")
+            output_file(X, feature_train_path)
+            output_file(Y, feature_test_path)
         else:
+
             # Load pre-extracted features of sample file
-            with open('../resources/output/train_data.p', 'rb') as f:
+            with open(feature_train_path, 'rb') as f:
                 X = pickle.load(f)
 
-            with open('../resources/output/test_data.p', 'rb') as f:
+            with open(feature_test_path, 'rb') as f:
                 Y = pickle.load(f)
     else:
         sys.exit("Choose the appropriate arguments for the input data")
