@@ -26,7 +26,7 @@ if __name__ == '__main__':
                         help="Choose the type of data (options: sherlock, mycroft)")
     parser.add_argument('--extract', '-e', default=False, type=bool,
                         help="Choose if you want to generate features or not")
-    parser.add_argument('--split', '-s', default=False, type=bool,
+    parser.add_argument('--split', '-spt', default=False, type=bool,
                         help="Choose if you want to split the data or not")
     parser.add_argument('--train_split', '-ts', default=0.7, type=float,
                         help="Choose the percentage of the train data split (e.g: 0.7 -> 70% train)")
@@ -80,8 +80,13 @@ if __name__ == '__main__':
                 .rename(columns={0: "label", 1: "data"})
         )
 
-        data = pd.DataFrame(transform_data['data'])
-        labels = pd.DataFrame(transform_data['label'])
+        label_counts = transform_data['label'].value_counts()
+        filtered_labels = list(filter(lambda x: x >= 1, (label_counts.values / max(label_counts)) * 100))
+        unwanted_labels = label_counts.index[len(filtered_labels):].values
+        filtered_data = transform_data[~transform_data['label'].isin(unwanted_labels)]
+
+        data = pd.DataFrame(filtered_data['data'])
+        labels = pd.DataFrame(filtered_data['label'])
 
         label_categories = len(labels['label'].unique())
 
