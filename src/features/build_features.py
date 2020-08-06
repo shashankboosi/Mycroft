@@ -2,6 +2,7 @@
 
 import os
 import random
+import time
 
 import pandas as pd
 from google_drive_downloader import GoogleDriveDownloader as gd
@@ -63,7 +64,7 @@ def build_features(data):
     vec_dim = 400
     i = 0
     for raw_sample in data.iterrows():
-
+        start = time.time()
         i = i + 1
         if i % 20 == 0:
             print("Extracting features for data column ", i)
@@ -88,6 +89,8 @@ def build_features(data):
         df_stat = df_stat.append(
             extract_bag_of_words_features(raw_sample), ignore_index=True
         )
+        time_elapsed = time.time() - start
+        print('Time taken for the single feature extraction is {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
 
     df_char.fillna(df_char.mean(), inplace=True)
     df_word.fillna(df_word.mean(), inplace=True)

@@ -36,7 +36,7 @@ def train_paragraph_embeddings_features(columns, dim):
 # Input: a single column in the form of a pandas Series.
 # Output: ordered dictionary holding paragraph vector features
 def infer_paragraph_embeddings_features(data, dim):
-    print('Inferring paragraph vectors with vector dimension: ', dim)
+    # print('Inferring paragraph vectors with vector dimension: ', dim)
 
     # Load pretrained paragraph vector model
     model = Doc2Vec.load('../src/features/par_vec_trained_{}.pkl'.format(dim))
