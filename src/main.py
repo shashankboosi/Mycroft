@@ -1,13 +1,12 @@
 import argparse
-import ast
 import os
 import pickle
-import random
 import sys
 import warnings
 
 import numpy as np
 import pandas as pd
+from data_conversion.data_filtering import get_refined_filtered_data
 from features.build_features import build_features
 from helpers.utils import output_file
 from models.train_predict_model import train_val_predict_model
@@ -74,39 +73,14 @@ if __name__ == '__main__':
             input_data = pd.read_csv("../resources/output/mycroft_{}_tables.csv".format(args.no_of_tables),
                                      names=["csv_data"])
 
-        transform_data = (
-            input_data["csv_data"]
-                .apply(lambda i: [j for j in ast.literal_eval(i)])
-                .apply(pd.Series)
-                .rename(columns={0: "label", 1: "data"})
-        )
-
-        # Remove the data of the labels which contains more than 5 percent of the total transformed data
-        label_counts = transform_data['label'].value_counts()
-        limit = int(len(transform_data) * 0.05)
-        labels_with_excess_data = label_counts.index[
-                                  :len(list(filter(lambda x: x >= limit, label_counts.values)))].values
-
-        refined_data = transform_data.copy()
-        for i in range(len(labels_with_excess_data)):
-            indexes_to_drop = random.sample(
-                list(transform_data.groupby("label").groups[labels_with_excess_data[i]].values),
-                label_counts[labels_with_excess_data[i]] - limit)
-            refined_data.drop(transform_data.index[indexes_to_drop], inplace=True)
-        refined_data.reset_index(drop=True, inplace=True)
-
-        # Remove the data of the labels which contains less than 10 percent of the refined data
-        refined_label_counts = refined_data['label'].value_counts()
-        filtered_labels = list(
-            filter(lambda x: x >= 10, (refined_label_counts.values / max(refined_label_counts)) * 100)
-        )
-        unwanted_labels = refined_label_counts.index[len(filtered_labels):].values
-        filtered_data = refined_data[~refined_data['label'].isin(unwanted_labels)]
+        filtered_data = get_refined_filtered_data(input_data)
 
         data = pd.DataFrame(filtered_data['data'])
-        labels = pd.DataFrame(filtered_data['label'])
+        print("The number of rows in the data after filtering and refining labels is {}".format(len(data)))
 
+        labels = pd.DataFrame(filtered_data['label'])
         label_categories = len(labels['label'].unique())
+        print("Number of unique labels after filtering and refining: {}".format(label_categories))
 
         if args.sample:
             feature_train_path = "../resources/output/features/sample_train_data.p"
