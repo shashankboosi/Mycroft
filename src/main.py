@@ -98,7 +98,8 @@ if __name__ == '__main__':
         # Remove the data of the labels which contains less than 10 percent of the refined data
         refined_label_counts = refined_data['label'].value_counts()
         filtered_labels = list(
-            filter(lambda x: x >= 10, (refined_label_counts.values / max(refined_label_counts)) * 100))
+            filter(lambda x: x >= 10, (refined_label_counts.values / max(refined_label_counts)) * 100)
+        )
         unwanted_labels = refined_label_counts.index[len(filtered_labels):].values
         filtered_data = refined_data[~refined_data['label'].isin(unwanted_labels)]
 
