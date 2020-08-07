@@ -2,6 +2,7 @@ import argparse
 import ast
 import os
 import pickle
+import random
 import sys
 import warnings
 
@@ -80,10 +81,27 @@ if __name__ == '__main__':
                 .rename(columns={0: "label", 1: "data"})
         )
 
+        # Remove the data of the labels which contains more than 5 percent of the total transformed data
         label_counts = transform_data['label'].value_counts()
-        filtered_labels = list(filter(lambda x: x >= 1, (label_counts.values / max(label_counts)) * 100))
-        unwanted_labels = label_counts.index[len(filtered_labels):].values
-        filtered_data = transform_data[~transform_data['label'].isin(unwanted_labels)]
+        limit = int(len(transform_data) * 0.05)
+        labels_with_excess_data = label_counts.index[
+                                  :len(list(filter(lambda x: x >= limit, label_counts.values)))].values
+
+        refined_data = transform_data.copy()
+        for i in range(len(labels_with_excess_data)):
+            indexes_to_drop = random.sample(
+                list(transform_data.groupby("label").groups[labels_with_excess_data[i]].values),
+                label_counts[labels_with_excess_data[i]] - limit)
+            refined_data.drop(transform_data.index[indexes_to_drop], inplace=True)
+        refined_data.reset_index(drop=True, inplace=True)
+
+        # Remove the data of the labels which contains less than 10 percent of the refined data
+        refined_label_counts = refined_data['label'].value_counts()
+        filtered_labels = list(
+            filter(lambda x: x >= 10, (refined_label_counts.values / max(refined_label_counts)) * 100)
+        )
+        unwanted_labels = refined_label_counts.index[len(filtered_labels):].values
+        filtered_data = refined_data[~refined_data['label'].isin(unwanted_labels)]
 
         data = pd.DataFrame(filtered_data['data'])
         labels = pd.DataFrame(filtered_data['label'])

@@ -1,4 +1,5 @@
 import ast
+import random
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -24,14 +25,28 @@ def get_data_stats(path):
     label_categories = len(transform_data['label'].unique())
     print("Number of unique labels before filtering: {}".format(label_categories))
 
+    # Remove the data of the labels which contains more than 5 percent of the total transformed data
     label_counts = transform_data['label'].value_counts()
-    filtered_labels = list(filter(lambda x: x >= 1, (label_counts.values / max(label_counts)) * 100))
-    unwanted_labels = label_counts.index[len(filtered_labels):].values
-    filtered_data = transform_data[~transform_data['label'].isin(unwanted_labels)]
+    limit = int(len(transform_data) * 0.05)
+    labels_with_excess_data = label_counts.index[:len(list(filter(lambda x: x >= limit, label_counts.values)))].values
+    print("The labels that have more than 5% of data are {}".format(labels_with_excess_data))
+    refined_data = transform_data.copy()
+    for i in range(len(labels_with_excess_data)):
+        indexes_to_drop = random.sample(list(transform_data.groupby("label").groups[labels_with_excess_data[i]].values),
+                                        label_counts[labels_with_excess_data[i]] - limit)
+        refined_data.drop(transform_data.index[indexes_to_drop], inplace=True)
+    refined_data.reset_index(drop=True, inplace=True)
+
+    # Remove the data of the labels which contains less than 10 percent of the refined data
+    refined_label_counts = refined_data['label'].value_counts()
+    filtered_labels = list(filter(lambda x: x >= 10, (refined_label_counts.values / max(refined_label_counts)) * 100))
+    unwanted_labels = refined_label_counts.index[len(filtered_labels):].values
+    filtered_data = refined_data[~refined_data['label'].isin(unwanted_labels)]
 
     data = pd.DataFrame(filtered_data['data'])
-    print("The number of rows in the data after filtering labels is {}".format(len(data)))
+    print("The number of rows in the data after filtering and refining labels is {}".format(len(data)))
 
+    # Plot of the final labels and its count used for feature extraction and modelling
     plt.figure(figsize=(12, 8))
     chart = sns.barplot(x=label_counts.index[:len(filtered_labels)], y=label_counts[:len(filtered_labels)])
     chart.set_xticklabels(
@@ -44,8 +59,8 @@ def get_data_stats(path):
     plt.xlabel('Labels')
     plt.show()
 
-    print("Number of unique labels after filtering: {}".format(len(filtered_data['label'].unique())))
+    print("Number of unique labels after filtering and refining: {}".format(len(filtered_data['label'].unique())))
 
 
 # Can be used when you want to check the stats of a file directly
-# get_data_stats("../../resources/output/mycroft_10000_tables.csv")
+get_data_stats("../../resources/output/mycroft_10000_tables.csv")
