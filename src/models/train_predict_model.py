@@ -2,7 +2,7 @@ import os
 import sys
 
 import numpy as np
-from sklearn.metrics import f1_score
+from sklearn.metrics import f1_score, precision_score, recall_score
 from sklearn.preprocessing import LabelEncoder
 from torch.utils.data import DataLoader, random_split
 
@@ -71,3 +71,10 @@ def train_val_predict_model(X, Y, nn_id, train_data_split, data_split, label_cat
 
     # F1-score of the best model prediction
     print('The final f1-score is {}%'.format(f1_score(true_labels, predicted_labels, average='weighted') * 100))
+
+    # Precision Score of the best model prediction
+    print('The final precision score is {}%'.format(
+        precision_score(true_labels, predicted_labels, average='weighted') * 100))
+
+    # Recall Score of the best model prediction
+    print('The final recall score is {}%'.format(recall_score(true_labels, predicted_labels, average='weighted') * 100))
