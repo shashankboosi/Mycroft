@@ -8,7 +8,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Web Table Format To Mycroft Format Converter')
     parser.add_argument('--sample', '-s', default=False, type=bool,
                         help="Choose if you want to use sample or not")
-    parser.add_argument('--no_of_tables', '-num', default=1000, type=int,
+    parser.add_argument('--no_of_tables', '-num', default=10000, type=int,
                         help="Choose the number of tables that are needed for Mycroft")
 
     args = parser.parse_args()
