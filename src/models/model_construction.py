@@ -24,7 +24,7 @@ class NNModelConstruction:
         self.criterion = nn.CrossEntropyLoss()
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.model = network.to(self.device)
-        self.optimizer = optim.Adam(self.model.parameters(), lr=learning_rate)
+        self.optimizer = optim.Adam(self.model.parameters(), lr=learning_rate, weight_decay=1e-5)
 
         if not os.path.exists(os.path.normpath(
                 os.path.join(os.path.dirname(__file__), '..', '..', 'resources', 'output', 'checkpoints'))):
