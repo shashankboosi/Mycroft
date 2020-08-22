@@ -19,7 +19,7 @@ def get_data_stats(path):
     print("The number of rows in the data after filtering and refining labels is {}".format(len(data)))
 
     # Plot of the final labels and its count used for feature extraction and modelling
-    plt.figure(figsize=(12, 8))
+    plt.figure(figsize=(12, 10))
     chart = sns.barplot(x=label_counts.index, y=label_counts)
     chart.set_xticklabels(
         chart.get_xticklabels(),
@@ -27,8 +27,9 @@ def get_data_stats(path):
         horizontalalignment='right',
         fontweight='light'
     )
-    plt.ylabel('Count')
+    plt.ylabel('Label Count')
     plt.xlabel('Labels')
+    plt.savefig('../../resources/images/label_count.png')
     plt.show()
 
     print("Number of unique labels after filtering and refining: {}".format(len(filtered_data['label'].unique())))
