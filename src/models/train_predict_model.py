@@ -30,7 +30,7 @@ def train_val_predict_model(X, Y, nn_id, train_data_split, data_split, is_sample
     y_int = encoder.transform(Y)
 
     lr = 0.0001
-    epochs = 100
+    epochs = 20
 
     # Divide the dataset into train, validation and test
     dataset = WDCDataset(X, y_int, transform=ToTensor())

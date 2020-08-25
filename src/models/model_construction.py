@@ -24,7 +24,7 @@ class NNModelConstruction:
         self.criterion = nn.CrossEntropyLoss()
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.model = network.to(self.device)
-        self.optimizer = optim.Adam(self.model.parameters(), lr=learning_rate, weight_decay=1e-5)
+        self.optimizer = optim.Adam(self.model.parameters(), lr=learning_rate, weight_decay=1e-4)
 
         if not os.path.exists(os.path.normpath(
                 os.path.join(os.path.dirname(__file__), '..', '..', 'resources', 'output', 'checkpoints'))):
@@ -62,9 +62,8 @@ class NNModelConstruction:
                 exit('The model stopped learning and early stopping is applied')
 
             # Saving the best model based on the best accuracy
+            best_acc_list.append(epoch_acc * 100)
             if epoch_acc > best_acc:
-                best_acc = epoch_acc
-                best_acc_list.append(best_acc*100)
                 if save_cp:
                     torch.save(self.model.state_dict(),
                                os.path.join(self.model_checkpoint_path, 'CP-{}.pth'.format(self.nn_id)))
@@ -96,7 +95,7 @@ class NNModelConstruction:
             loss.backward()
             self.optimizer.step()
 
-            if (i + 1) % 2 == 0:
+            if (i + 1) % 20 == 0:
                 print('Loss at Epoch [{}/{}] and Step [{}/{}] is: {:.4f}'
                       .format(epoch + 1, self.epochs, i + 1, total_step, train_history_per_epoch['loss'] / total))
 

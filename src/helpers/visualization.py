@@ -24,10 +24,6 @@ plt.plot(acc_list_40000, label="40000 tables")
 plt.plot(acc_list_50000, label="50000 tables")
 plt.plot(acc_list_100000, label="100000 tables")
 
-
-# plt.plot(acc_list, label="sample")
-
-
 plt.xlabel('No of epochs')
 plt.ylabel('Accuracy in (%)')
 plt.legend()
