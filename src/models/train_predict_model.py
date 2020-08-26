@@ -1,5 +1,4 @@
-import os
-import sys
+import pickle
 
 import numpy as np
 from sklearn.metrics import f1_score, precision_score, recall_score
@@ -8,14 +7,12 @@ from torch.utils.data import DataLoader, random_split
 
 from .dataset import WDCDataset, ToTensor
 from .model_construction import NNModelConstruction
-from .sherlock_model import Sherlock
-
-sys.path.append(os.getcwd())
+from .mycroft_models import MycroftBiLSTM
 
 SEED = 13
 
 
-def train_val_predict_model(X, Y, nn_id, train_data_split, data_split, label_categories):
+def train_val_predict_model(X, Y, nn_id, train_data_split, data_split, is_sample, no_of_tables, label_categories):
     """This function performs operations on the NN model such as train, validate and test. It also calculates the
     metrics like categorical accuracy and F1-score
 
@@ -33,7 +30,7 @@ def train_val_predict_model(X, Y, nn_id, train_data_split, data_split, label_cat
     y_int = encoder.transform(Y)
 
     lr = 0.0001
-    epochs = 100
+    epochs = 20
 
     # Divide the dataset into train, validation and test
     dataset = WDCDataset(X, y_int, transform=ToTensor())
@@ -62,8 +59,16 @@ def train_val_predict_model(X, Y, nn_id, train_data_split, data_split, label_cat
         print('Train, validation and test dataset size', len(dataset))
 
     m = NNModelConstruction(train_loader, validation_loader, test_loader,
-                            Sherlock(SEED, label_categories=label_categories), nn_id, lr, epochs)
-    m.train(save_cp=True)
+                            MycroftBiLSTM(SEED, label_categories=label_categories), nn_id, lr, epochs)
+    epoch_acc_list = m.train(save_cp=True)
+
+    if is_sample:
+        acc_list_path = "../resources/output/accuracy_list/acc_list_sample.p"
+    else:
+        acc_list_path = "../resources/output/accuracy_list/acc_list_{}.p".format(no_of_tables)
+
+    with open(acc_list_path, 'wb') as f:
+        pickle.dump(epoch_acc_list, f, protocol=pickle.HIGHEST_PROTOCOL)
     print('Trained new model.')
 
     # Predict labels using the model

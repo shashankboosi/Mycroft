@@ -107,4 +107,4 @@ if __name__ == '__main__':
     else:
         sys.exit("Choose the appropriate arguments for the input data")
 
-    train_val_predict_model(X, Y, args.input_data, args.train_split, args.split, label_categories)
+    train_val_predict_model(X, Y, args.input_data, args.train_split, args.split, args.sample, args.no_of_tables, label_categories)

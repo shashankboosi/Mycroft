@@ -1,84 +1,73 @@
-
 # Mycroft
 
 An AI approach to detect Semantic Data Types using NLP and Deep Learning.
 
-## Implementation
 
-Mycroft is divided into 3 different stages because of the different types of conversions we implement in the datasets by formatting them completely.
+## Installation Steps
 
-### Stage 1 
-Converting Web Data Commons 2015 to the format that Mycroft takes in as input
+1) Install python. Make sure you are using python version 3.7 or above.
 
-Example structure of **Web Data Commons 2015**:
+2) Once the repository is cloned, go to project's folder and create a virtual environment using environment manager like **virtualenv**, **conda**, **pipenv**.
 
-```json
-{
-  "relation":[ 
-	["#","1","2","3","4","5","6","7","8","9","10"], 
-	["Club","Barcelona","Real Madrid","Bayern München","Paris Saint Germain","Atlético Madrid","Juventus","Manchester City","Arsenal","FC Porto","Manchester United"], 
-	["Country","ESP","ESP","GER","FRE","ESP","ITA","ENG","ENG","POR","ENG"],
-	["Points","2037","2008","1973","1914","1880","1863","1862","1853","1850","1804"]
-   ],
-  "pageTitle": "FootballDatabase - Club Rankings and Statistics",
-  "title": "",
-  "url": "http://footballdatabase.com/index.php?page\u003dplayer\u0026Id\u003d660",
-  "hasHeader": true,
-  "headerPosition": "FIRST_ROW",
-  "tableType": "RELATION",
-  "tableNum": 0,
-  "s3Link": "common-crawl/crawl-data/CC-MAIN-2015-32/segments/1438042981460.12/warc/CC-MAIN-20150728002301-00000-ip-10-236-191-2.ec2.internal.warc.gz",
-  "recordEndOffset": 99246001,
-  "recordOffset": 99230046,
-  "tableOrientation": "HORIZONTAL",
-  "TableContextTimeStampBeforeTable": "{10283\u003dOn Wednesday, December 6, 2006 Islanders General Manager Garth Snow attended the Fifth Annual John Theissen Holiday Fundraiser.}",
-  "TableContextTimeStampAfterTable": "{37811\u003dIn 2005, Slovakian champion FC Artmedia upset 39-time Scottish league champion Celtic 5-0 in their European Champions League second-round qualifying match.}",  
-  "lastModified": "Sat, 19 Jun 2010 15:14:57 GMT",
-  "textBeforeTable": "Chelsea Ronnie MacDonald Bayern München Peter P. Juventus Mitsurinho Real Madrid Jan S0L0 Barcelona Globovision Football",
-  "textAfterTable": "Full World Ranking Match Centre Argentina Primera 2015 26 July 2015 Vélez Sarsfield 0 - 2 Olimpo Brazil Serie A 2015 26 July 2015 Vasco da Gama 1 - 4 Palmeiras Mexico Liga",
-  "hasKeyColumn": true,
-  "keyColumnIndex": 1,
-  "headerRowIndex": 0  
-}
-```
+3) Activate the environment and install the desired python packages using:
 
-In this stage we convert the above structure into Mycroft format shown below
+    ```
+     pip install -r requirements.txt
+     pip install torch==1.6.0+cpu torchvision==0.7.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
+    ```
 
-```
-["label", "data"]
-["Club", ["Barcelona","Real Madrid","Bayern München","Paris Saint Germain","Atlético Madrid","Juventus","Manchester City","Arsenal","FC Porto","Manchester United"]] 
-["Country", ["ESP","ESP","GER","FRE","ESP","ITA","ENG","ENG","POR","ENG"]]
-["Points", ["2037","2008","1973","1914","1880","1863","1862","1853","1850","1804"]]
-```
+4) Now the main dataset is extracted from the website http://data.dws.informatik.uni-mannheim.de/webtables/2015-07/englishCorpus/compressed/ .
+ Once you go to the website download the first folder and extract the folder which will be called `0` and place it in the directory named `resources/data`.
 
-**Important Considerations while conversion:**
+5) Coming to the code execution, there are 2 parts to the code, the data conversion part and the complete process execution part.
 
-1. Remove the webTable which doesnot contain `hasHeader`
-2. Only consider webTables with `tableType` being `RELATION`
-3. Remove a few special characters from the label
-4. Remove labels which are empty
+6) The point below(7) is only optional to run as the data conversion part is already done and the extracted files are stored locally.
 
-### Stage 2
+7) After the packages and the dataset is installed and structured, lets look at the data conversion part, it consists of command line arguments to run the codes in a specific ways. The command line arguments are:
 
-**Features to talk about**
+    - `--sample` or `-s`, default=False, description=Choose if you want to use sample or not
+    - `--no_of_tables` or `-num`, default=False, description=Choose the number of tables that are needed for Mycroft
 
-1. Use `pageTitle` to increase more relevancy in the dataset
-2. Add the feature of Similarity matching whilst Data Collection
+    Using the above command line arguments, we can run the code using the following commands after going to the `src/data_conversion` folder:
+    
+    - To run the data extractor code and extract 50000 web tables
+            
+        ``` python data_extractor.py -num 50000```
+
+8) Coming to the main process execution part, this part also consists of command line arguments to run the codes in a specific ways. The command line arguments are:
+
+    - `--input_data` or `-i`, default=`sherlock`, description=Choose the type of data (options: **sherlock**, **mycroft**)
+    - `--extract` or `-e`, default=False, description=Choose if you want to generate features or used the saved features
+    - `--split` or `-spt`, default=False, description=Choose if you want to split the data or not
+    - `--train_split` or `-ts`, default=0.7, description=Choose the percentage of the train data split (Example: 0.7 -> 70% train)
+    - `--no_of_tables` or `-num`, default=20000, description=Choose the files with number of tables that is required for processing (options: "**40000**, **50000**, **100000**")
+    - `--sample` or `-smp`, default=False, description="Choose if you want to use sample or not"
+
+9) Using the above command line arguments, we can run the code using the following commands after going to the `src` folder:
+
+    - To run the Mycroft on the the data with 50000 web tables with saved features
+
+        ``` python main.py -i mycroft -spt True -ts 0.8 -num 50000```
+
+    - To run the Mycroft on the the data with 50000 web tables with features being generated
+
+        ``` python main.py -i mycroft -e True -spt True -ts 0.8 -num 50000```
+
+        **Note**: The feature extraction part will take a lot of time (8 secs per data column)
+
+    - In the same way you can explore other values and get the results
 
 
-### Stage 3 
 
-**Features to talk about**
+## Mycroft Process Diagram
 
-1. Use TF-IDF
-2. Change in the dimensions used in the feature extractors
-3. Use of a multi-input NN for better associations between the features.
+![Mycroft Model](./resources/report/Pics/architectural_diagram.png)
 
-# Todos
+## Mycroft Model
 
-1. Deeply understand Sherlock by going through the paper thoroughly and understand the feature classifications.
-2. Try exploiting sherlock and try adding more features to our research.
+![Mycroft Model](./resources/report/Pics/nnmodel1.png)
+
 
 # Dataset
 
-http://webdatacommons.org/webtables/2015/downloadInstructions.html (Used the first folder to test my project)
+The dataset is available in the website: http://webdatacommons.org/webtables/2015/downloadInstructions.html. Go to the link http://data.dws.informatik.uni-mannheim.de/webtables/2015-07/englishCorpus/compressed/ and download the first folder and extract the folder which will be called `0` and place it in `resources/data`.

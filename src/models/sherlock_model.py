@@ -28,10 +28,9 @@ class Sherlock(nn.Module):
         self.input_data_slice3 = SherlockThinSlice(400, 400)
         self.bn1 = nn.BatchNorm1d(27, momentum=0.99, eps=0.001)
         self.bn2 = nn.BatchNorm1d(927, momentum=0.99, eps=0.001)
-        self.bn3 = nn.BatchNorm1d(400, momentum=0.99, eps=0.001)
-        self.dense1 = nn.Linear(927, 600)
-        self.dense2 = nn.Linear(600, 400)
-        self.dense3 = nn.Linear(400, self.label_categories)
+        self.dense1 = nn.Linear(927, 500)
+        self.dense2 = nn.Linear(500, 500)
+        self.dense3 = nn.Linear(500, self.label_categories)
 
     def forward(self, x, y, z, w):
         """
@@ -53,6 +52,6 @@ class Sherlock(nn.Module):
         x = self.bn2(x)
         x = F.dropout(F.relu(self.dense1(x)), 0.35)
         x = F.relu(self.dense2(x))
-        x = self.dense3(self.bn3(x))
+        x = self.dense3(x)
 
         return x
