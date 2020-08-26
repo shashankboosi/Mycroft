@@ -61,11 +61,11 @@ An AI approach to detect Semantic Data Types using NLP and Deep Learning.
 
 ## Mycroft Process Diagram
 
-![Mycroft Model](./resources/report/Pics/architectural_diagram.png)
+![Mycroft Model](resources/images/architectural_diagram.png)
 
 ## Mycroft Model
 
-![Mycroft Model](./resources/report/Pics/nnmodel1.png)
+![Mycroft Model](resources/images/nnmodel.png)
 
 
 # Dataset
