@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader, random_split
 
 from .dataset import WDCDataset, ToTensor
 from .model_construction import NNModelConstruction
-from .sherlock_model import Sherlock
+from .mycroft_models import MycroftBiLSTM
 
 SEED = 13
 
@@ -59,8 +59,8 @@ def train_val_predict_model(X, Y, nn_id, train_data_split, data_split, is_sample
         print('Train, validation and test dataset size', len(dataset))
 
     m = NNModelConstruction(train_loader, validation_loader, test_loader,
-                            Sherlock(SEED, label_categories=label_categories), nn_id, lr, epochs)
-    best_acc_list = m.train(save_cp=True)
+                            MycroftBiLSTM(SEED, label_categories=label_categories), nn_id, lr, epochs)
+    epoch_acc_list = m.train(save_cp=True)
 
     if is_sample:
         acc_list_path = "../resources/output/accuracy_list/acc_list_sample.p"
@@ -68,7 +68,7 @@ def train_val_predict_model(X, Y, nn_id, train_data_split, data_split, is_sample
         acc_list_path = "../resources/output/accuracy_list/acc_list_{}.p".format(no_of_tables)
 
     with open(acc_list_path, 'wb') as f:
-        pickle.dump(best_acc_list, f, protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump(epoch_acc_list, f, protocol=pickle.HIGHEST_PROTOCOL)
     print('Trained new model.')
 
     # Predict labels using the model

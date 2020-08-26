@@ -36,4 +36,4 @@ def get_data_stats(path):
 
 
 # Can be used when you want to check the stats of a file directly
-get_data_stats("../../resources/output/mycroft_10000_tables.csv")
+# get_data_stats("../../resources/output/mycroft_10000_tables.csv")

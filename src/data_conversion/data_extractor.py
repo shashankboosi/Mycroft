@@ -20,7 +20,7 @@ if __name__ == '__main__':
 
     else:
         output_path = "../../resources/output/mycroft_{}_tables.csv".format(args.no_of_tables)
-        input_converter = WebTableFormatToMycroftFormat("../../resources/data/mini-data", output_path,
+        input_converter = WebTableFormatToMycroftFormat("../../resources/data/0", output_path,
                                                         args.no_of_tables)
     input_converter.transform()
     time_elapsed = time.time() - start

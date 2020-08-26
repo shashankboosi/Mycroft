@@ -39,7 +39,7 @@ class NNModelConstruction:
         best_acc = 0
         prev_loss = 0
         count = 0
-        best_acc_list = []
+        epoch_acc_list = []
         for epoch in tqdm(range(self.epochs)):
             print()
             print('-----------------------------------------------------')
@@ -62,8 +62,9 @@ class NNModelConstruction:
                 exit('The model stopped learning and early stopping is applied')
 
             # Saving the best model based on the best accuracy
-            best_acc_list.append(epoch_acc * 100)
+            epoch_acc_list.append(epoch_acc * 100)
             if epoch_acc > best_acc:
+                best_acc = epoch_acc
                 if save_cp:
                     torch.save(self.model.state_dict(),
                                os.path.join(self.model_checkpoint_path, 'CP-{}.pth'.format(self.nn_id)))
@@ -71,7 +72,7 @@ class NNModelConstruction:
                 print('Best val accuracy is {}%'.format(best_acc * 100))
             self.model.train()
 
-        return best_acc_list
+        return epoch_acc_list
 
     def train_epoch(self, epoch, total_step):
 

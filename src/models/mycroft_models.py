@@ -25,16 +25,6 @@ class MycroftBiLSTM(nn.Module):
         self.dense3 = nn.Linear(400, self.label_categories)
 
     def forward(self, x, y, z, w):
-        """
-            4 inputs - input_data[0], input_data[1], input_data[2], input_data[3] (4 inputs)
-             -> input[0] -> batch_norm -> dense -> dropout -> dense
-             -> input[1] -> batch_norm -> dense -> dropout -> dense
-             -> input[2] -> batch_norm -> dense -> dropout -> dense
-             -> input[3] -> batch_norm
-             -> concatenate -> batch_norm -> dense -> dropout -> dense -> dense
-             -> CategoricalCrossEntropyLoss
-             -> loss
-        """
         input_data_1 = self.input_data_slice1(x)  # 960
         input_data_2 = self.input_data_slice2(y)  # 201
         input_data_3 = self.input_data_slice3(z)  # 400
