@@ -62,7 +62,6 @@ There are 2 parts to the code, the data conversion part and the complete process
 
        
 
-
 ## Mycroft Process Diagram
 
 <img src="resources/images/architectural_diagram.png" width="600" height="600" />
@@ -71,12 +70,11 @@ There are 2 parts to the code, the data conversion part and the complete process
 
 <img src="resources/images/nnmodel.png" height="900" />
 
-
-# Dataset
+## Dataset
 
 The dataset is available in the website: http://webdatacommons.org/webtables/2015/downloadInstructions.html. Go to the link http://data.dws.informatik.uni-mannheim.de/webtables/2015-07/englishCorpus/compressed/ and download the first folder and extract the folder which will be called `0` and place it in `resources/data`.
 
-# References
+## References
 
 - *M. Hulsebos, K. Hu,M. Bakker, E. Zgraggen, A. Satyanarayan, T. Kraska, c. Demiralp, and C. Hidalgo*, **[Sherlock](https://github.com/madelonhulsebos/sherlock): A deep learning approach to semantic data type detection**, in Proceedings of the 25th ACM SIGKDD International Conference on Knowledge Discovery &#38; DataMining, ACM, 2019.
 - *O. Lehmberg, D. Ritze, R.Meusel, and C. Bizer*, **A large public corpus of web tables containing time and context metadata,** in Proceedings of the 25th International Conference Companion on WorldWideWeb, pp. 75–76, 2016.
