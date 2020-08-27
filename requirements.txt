@@ -8,3 +8,7 @@ pandas
 scikit-learn
 scipy
 tqdm
+--find-links https://download.pytorch.org/whl/torch_stable.html
+torch==1.6.0+cpu
+--find-links https://download.pytorch.org/whl/torch_stable.html
+torchvision==0.7.0+cpu
