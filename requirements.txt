@@ -9,6 +9,6 @@ scikit-learn
 scipy
 tqdm
 --find-links https://download.pytorch.org/whl/torch_stable.html
-torch==1.6.0+cpu
+torch==2.2.0
 --find-links https://download.pytorch.org/whl/torch_stable.html
 torchvision==0.7.0+cpu
